@@ -11,8 +11,8 @@ void escribir_subseccion_data(FILE* fpasm){
     char msg_index_out_of_range[] = "ERROR: indice fuera de rango";
     if(fpasm == NULL) return;
     fprintf(fpasm, "segment .data\n");
-    fprintf(fpasm, "\t_msgErrorDiv0 db \"%s\"\n", msg_div_0);
-    fprintf(fpasm, "\t_msgIndexOutOfRange db \"%s\"\n", msg_index_out_of_range);
+    fprintf(fpasm, "\t_msgErrorDiv0 db \"%s\", 0\n", msg_div_0);
+    fprintf(fpasm, "\t_msgIndexOutOfRange db \"%s\", 0\n", msg_index_out_of_range);
 }
 
 void declarar_variable(FILE* fpasm, char * nombre, int tipo, int tamano){
