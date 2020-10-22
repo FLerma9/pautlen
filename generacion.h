@@ -132,4 +132,5 @@ Se deben insertar en la pila los argumentos necesarios, realizar la llamada
 */
 void leer(FILE* fpasm, char* nombre, int tipo);
 void escribir(FILE* fpasm, int es_variable, int tipo);
+
 #endif
