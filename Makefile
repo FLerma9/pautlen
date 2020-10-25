@@ -1,12 +1,12 @@
-CC = gcc 
-CFLAGS = -Wall -g 
+CC = gcc
+CFLAGS = -Wall -g
 GENFILE = generacion
 EJEMPLOS = ej1
 
 all: $(EJEMPLOS)
 
 $(EJEMPLOS): %: %.c $(GENFILE).c $(GENFILE).h
-	$(CC) $(CFLAGS) -c $@_asm generacion.c $@.c
+	$(CC) $(CFLAGS) -o $@_asm generacion.c $@.c
 	./$@_asm $@.asm
 	nasm -g -o $@.o -f elf32 $@.asm
 	$(CC) $(CFLAGS) -m32 -o $@ $@.o alfalib.o
@@ -20,5 +20,4 @@ $(EJEMPLOS): %: %.c $(GENFILE).c $(GENFILE).h
 .PHONY: clean
 
 clean:
-	rm -f $(EJEMPLOS) $(EJEMPLOS)_asm $(EJEMPLOS).asm $(EJEMPLOS).o 
-
+	rm -f $(EJEMPLOS) $(EJEMPLOS)_asm $(EJEMPLOS).asm $(EJEMPLOS).o

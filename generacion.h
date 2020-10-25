@@ -215,4 +215,46 @@ puesto que se ha liberado la última de ellas.
 */
 void while_fin( FILE * fpasm, int etiqueta);
 
+/*
+Generación de código para indexar un vector
+    - Cuyo nombre es nombre_vector
+    - Declarado con un tamaño tam_max
+    - La expresión que lo indexa está en la cima de la pila
+    - Puede ser una variable (o algo equivalente) en cuyo caso exp_es_direccion vale 1
+    - Puede ser un valor concreto (en ese caso exp_es_direccion vale 0)
+    - Según se especifica en el material, es suficiente con utilizar dos registros para realizar esta
+    tarea.
+*/
+void escribir_elemento_vector(FILE * fpasm,char * nombre_vector,
+    int tam_max, int exp_es_direccion);
+
+/*
+ Generación de código para iniciar la declaración de una función.
+ Es necesario proporcionar
+    - Su nombre
+    - Su número de variables locales
+*/
+void declararFuncion(FILE * fd_asm, char * nombre_funcion, int num_var_loc);
+
+/*
+Generación de código para el retorno de una función.
+    - La expresión que se retorna está en la cima de la pila.
+    - Puede ser una variable (o algo equivalente) en cuyo caso exp_es_direccion vale 1
+    - Puede ser un valor concreto (en ese caso exp_es_direccion vale 0)
+*/
+void retornarFuncion(FILE * fd_asm, int es_variable);
+
+/*
+Función para dejar en la cima de la pila la dirección efectiva del parámetro que ocupa la
+posición pos_parametro (recuerda que los parámetros se ordenan con origen 0) de un total
+de num_total_parametros
+*/
+void escribirParametro(FILE* fpasm, int pos_parametro, int num_total_parametros);
+
+/*
+Función para dejar en la cima de la pila la dirección efectiva de la variable local que ocupa
+la posición posicion_variable_local (recuerda que ordenadas con origen 1)
+*/
+void escribirVariableLocal(FILE* fpasm, int posicion_variable_local);
+
 #endif
