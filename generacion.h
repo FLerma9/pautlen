@@ -4,6 +4,7 @@
 /* Declaraciones de tipos de datos del compilador */
 #define ENTERO 0
 #define BOOLEANO 1
+#define MAX_ETIQUETAS 20
 /* OBSERVACIÓN GENERAL A TODAS LAS FUNCIONES:
 Todas ellas escriben el código NASM a un FILE* proporcionado como primer
 argumento.
@@ -65,7 +66,7 @@ primer caso internamente se representará como _b1 y, sin embargo, en el
 segundo se representará tal y como esté en el argumento (34).
 */
 void asignar(FILE* fpasm, char* nombre, int es_variable);
-/*
+/*d
 - Genera el código para asignar valor a la variable de nombre nombre.
 - Se toma el valor de la cima de la pila.
 - El último argumento es el que indica si lo que hay en la cima de la pila es
@@ -143,7 +144,7 @@ elemento de vector)
 void ifthenelse_inicio(FILE * fpasm, int exp_es_variable, int etiqueta);
 
 /*
-Generación de código para el inicio de una estructura if-then
+Generación de código para el inicio de duna estructura if-then
 Como es el inicio de uno bloque de control de flujo de programa que requiere de una nueva
 etiqueta deben ejecutarse antes las tareas correspondientes a esta situación
 exp_es_variable
@@ -256,5 +257,45 @@ Función para dejar en la cima de la pila la dirección efectiva de la variable 
 la posición posicion_variable_local (recuerda que ordenadas con origen 1)
 */
 void escribirVariableLocal(FILE* fpasm, int posicion_variable_local);
+/*
+Función para poder asignar a un destino que no es una variable “global” (tipo _x) por
+ejemplo parámetros o variables locales (ya que en ese caso su nombre real de alto nivel, no
+se tiene en cuenta pues es realmente un desplazamiento a partir de ebp: ebp+4 o ebp-8 por
+ejemplo).
+Se debe asumir que en la pila estará:
+    -Primero (en la cima) la dirección donde hay que asignar
+    -Debajo (se ha introducido en la pila antes) lo que hay que asignar
+es_variable:
+    -Es 1 si la expresión que se va a asignar es algo asimilable a una variable
+    (identificador, o elemento de vector)
+    -Es 0 en caso contrario (constante u otro tipo de expresión)
+*/
+void asignarDestinoEnPila(FILE* fpasm, int es_variable);
+
+/*
+Como habrás visto en el material, nuestro convenio de llamadas a las funciones asume que
+los argumentos se pasan por valor, esto significa que siempre se dejan en la pila “valores” y
+no “variables”
+Esta función realiza la tarea de dado un operando escrito en la pila y sabiendo si es variable
+o no (es_variable) se deja en la pila el valor correspondiente
+*/
+void operandoEnPilaAArgumento(FILE * fpasm, int es_variable);
+
+/*
+Esta función genera código para llamar a la función nombre_funcion asumiendo que los
+argumentos están en la pila en el orden fijado en el material de la asignatura.
+Debe dejar en la cima de la pila el retorno de la función tras haberla limpiado de sus
+argumentos
+Para limpiar la pila puede utilizar la función de nombre limpiarPila
+*/
+void llamarFuncion(FILE * fpasm, char * nombre_funcion, int num_argumentos);
+
+/*
+Genera código para limpiar la pila tras invocar una función
+Esta función es necesaria para completar la llamada a métodos, su gestión dificulta el
+conocimiento por parte de la función de llamada del número de argumentos que hay en la
+pila
+*/
+void limpiarPila(FILE * fpasm, int num_argumentos);
 
 #endif
