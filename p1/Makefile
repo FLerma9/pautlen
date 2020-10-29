@@ -5,6 +5,7 @@ EJEMPLOS = ej1 ej2 ej3 ej4 ej5 ej6 ej7
 all: $(EJEMPLOS)
 
 $(EJEMPLOS): %: %.c $(GENFILE).c $(GENFILE).h
+	@echo $@
 	$(CC) $(CFLAGS) -o $@_asm generacion.c $@.c
 	./$@_asm $@.asm
 	nasm -g -o $@.o -f elf32 $@.asm
