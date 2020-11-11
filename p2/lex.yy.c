@@ -540,11 +540,12 @@ char *yytext;
     #include <string.h>
     #include "tokens.h"
     int next_column = 1, column = 1;
+    char error[50];
     #define HANDLE_COLUMN column = next_column; next_column += yyleng
     void emitir_error(char* cadena_error);
-#line 546 "lex.yy.c"
+#line 547 "lex.yy.c"
 #define YY_NO_INPUT 1
-#line 548 "lex.yy.c"
+#line 549 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -759,9 +760,9 @@ YY_DECL
 		}
 
 	{
-#line 10 "alfa.l"
+#line 11 "alfa.l"
 
-#line 765 "lex.yy.c"
+#line 766 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -830,230 +831,230 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 11 "alfa.l"
+#line 12 "alfa.l"
 { HANDLE_COLUMN; return TOK_MAIN;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 12 "alfa.l"
+#line 13 "alfa.l"
 { HANDLE_COLUMN; return TOK_INT;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 13 "alfa.l"
+#line 14 "alfa.l"
 { HANDLE_COLUMN; return TOK_BOOLEAN;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 14 "alfa.l"
+#line 15 "alfa.l"
 { HANDLE_COLUMN; return TOK_ARRAY;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 15 "alfa.l"
+#line 16 "alfa.l"
 { HANDLE_COLUMN; return TOK_FUNCTION;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 16 "alfa.l"
+#line 17 "alfa.l"
 { HANDLE_COLUMN; return TOK_IF;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 17 "alfa.l"
+#line 18 "alfa.l"
 { HANDLE_COLUMN; return TOK_ELSE;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 18 "alfa.l"
+#line 19 "alfa.l"
 { HANDLE_COLUMN; return TOK_WHILE;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 19 "alfa.l"
+#line 20 "alfa.l"
 { HANDLE_COLUMN; return TOK_SCANF;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 20 "alfa.l"
+#line 21 "alfa.l"
 { HANDLE_COLUMN; return TOK_PRINTF;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 21 "alfa.l"
+#line 22 "alfa.l"
 { HANDLE_COLUMN; return TOK_RETURN;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 22 "alfa.l"
+#line 23 "alfa.l"
 { HANDLE_COLUMN; return TOK_SETOF;}
 	YY_BREAK
 case 13:
 /* rule 13 can match eol */
 YY_RULE_SETUP
-#line 23 "alfa.l"
+#line 24 "alfa.l"
 ;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 24 "alfa.l"
+#line 25 "alfa.l"
 { HANDLE_COLUMN;}
 	YY_BREAK
 case 15:
 /* rule 15 can match eol */
 YY_RULE_SETUP
-#line 25 "alfa.l"
+#line 26 "alfa.l"
 { next_column = 1;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 26 "alfa.l"
+#line 27 "alfa.l"
 { HANDLE_COLUMN;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 27 "alfa.l"
+#line 28 "alfa.l"
 { HANDLE_COLUMN; return TOK_PUNTOYCOMA;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 28 "alfa.l"
+#line 29 "alfa.l"
 { HANDLE_COLUMN; return TOK_COMA;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 29 "alfa.l"
+#line 30 "alfa.l"
 { HANDLE_COLUMN; return TOK_PARENTESISIZQUIERDO;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 30 "alfa.l"
+#line 31 "alfa.l"
 { HANDLE_COLUMN; return TOK_PARENTESISDERECHO;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 31 "alfa.l"
+#line 32 "alfa.l"
 { HANDLE_COLUMN; return TOK_CORCHETEIZQUIERDO;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 32 "alfa.l"
+#line 33 "alfa.l"
 { HANDLE_COLUMN; return TOK_CORCHETEDERECHO;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 33 "alfa.l"
+#line 34 "alfa.l"
 { HANDLE_COLUMN; return TOK_LLAVEIZQUIERDA;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 34 "alfa.l"
+#line 35 "alfa.l"
 { HANDLE_COLUMN; return TOK_LLAVEDERECHA;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 35 "alfa.l"
+#line 36 "alfa.l"
 { HANDLE_COLUMN; return TOK_IGUAL;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 36 "alfa.l"
+#line 37 "alfa.l"
 { HANDLE_COLUMN; return TOK_MENORIGUAL;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 37 "alfa.l"
+#line 38 "alfa.l"
 { HANDLE_COLUMN; return TOK_MAYORIGUAL;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 38 "alfa.l"
+#line 39 "alfa.l"
 { HANDLE_COLUMN; return TOK_DISTINTO;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 39 "alfa.l"
+#line 40 "alfa.l"
 { HANDLE_COLUMN; return TOK_ASIGNACION;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 40 "alfa.l"
+#line 41 "alfa.l"
 { HANDLE_COLUMN; return TOK_MAS;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 41 "alfa.l"
+#line 42 "alfa.l"
 { HANDLE_COLUMN; return TOK_MENOS;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 42 "alfa.l"
+#line 43 "alfa.l"
 { HANDLE_COLUMN; return TOK_DIVISION;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 43 "alfa.l"
+#line 44 "alfa.l"
 { HANDLE_COLUMN; return TOK_ASTERISCO;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 44 "alfa.l"
+#line 45 "alfa.l"
 { HANDLE_COLUMN; return TOK_AND;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 45 "alfa.l"
+#line 46 "alfa.l"
 { HANDLE_COLUMN; return TOK_OR;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 46 "alfa.l"
+#line 47 "alfa.l"
 { HANDLE_COLUMN; return TOK_NOT;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 47 "alfa.l"
+#line 48 "alfa.l"
 { HANDLE_COLUMN; return TOK_MENOR;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 48 "alfa.l"
+#line 49 "alfa.l"
 { HANDLE_COLUMN; return TOK_MAYOR;}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 49 "alfa.l"
+#line 50 "alfa.l"
 { HANDLE_COLUMN; return TOK_TRUE;}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 50 "alfa.l"
+#line 51 "alfa.l"
 { HANDLE_COLUMN; return TOK_FALSE;}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 51 "alfa.l"
+#line 52 "alfa.l"
 { if(yyleng>100){
-                            emitir_error("identificador demasiado largo"); return TOK_ERROR;
+                            strcpy(error,"identificador demasiado largo"); return TOK_ERROR;
                           }
                            HANDLE_COLUMN; return TOK_IDENTIFICADOR;}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 55 "alfa.l"
+#line 56 "alfa.l"
 { HANDLE_COLUMN; return TOK_CONSTANTE_ENTERA;}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 56 "alfa.l"
-{ emitir_error("simbolo no permitido"); return TOK_ERROR;}
+#line 57 "alfa.l"
+{ strcpy(error,"simbolo no permitido"); return TOK_ERROR;}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 57 "alfa.l"
+#line 58 "alfa.l"
 ECHO;
 	YY_BREAK
-#line 1057 "lex.yy.c"
+#line 1058 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2029,7 +2030,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 57 "alfa.l"
+#line 58 "alfa.l"
 
 void emitir_error(char* cadena_error){
     fprintf(stderr, "****Error en [lin %d, col %d]: %s (%s)\n", yylineno, column+1, cadena_error, yytext);
@@ -2051,7 +2052,7 @@ int main(int argc, char *argv[]){
       fprintf(stderr, "Error abriendo el fichero de salida\n");
       return -1;
     }
-    for(;a=yylex();){
+    for(;(a=yylex());){
         if(a==TOK_MAIN) fprintf(yyout, "TOK_MAIN\t%d\t%s\n", TOK_MAIN, yytext);
         else if(a==TOK_INT) fprintf(yyout, "TOK_INT\t%d\t%s\n", TOK_INT, yytext);
         else if(a==TOK_BOOLEAN) fprintf(yyout, "TOK_BOOLEAN\t%d\t%s\n", TOK_BOOLEAN, yytext);
@@ -2090,7 +2091,10 @@ int main(int argc, char *argv[]){
         else if(a==TOK_CONSTANTE_ENTERA) fprintf(yyout, "TOK_CONSTANTE_ENTERA\t%d\t%s\n", TOK_CONSTANTE_ENTERA, yytext);
         else if(a==TOK_TRUE) fprintf(yyout, "TOK_TRUE\t%d\t%s\n", TOK_TRUE, yytext);
         else if(a==TOK_FALSE) fprintf(yyout, "TOK_FALSE\t%d\t%s\n", TOK_FALSE, yytext);
-        else if(a==TOK_ERROR) break;
+        else if(a==TOK_ERROR){
+            emitir_error(error);
+            break;
+        }
     }
 }
 

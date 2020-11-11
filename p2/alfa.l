@@ -3,6 +3,7 @@
     #include <string.h>
     #include "tokens.h"
     int next_column = 1, column = 1;
+    char error[50];
     #define HANDLE_COLUMN column = next_column; next_column += yyleng
     void emitir_error(char* cadena_error);
 %}
@@ -49,11 +50,11 @@ return    { HANDLE_COLUMN; return TOK_RETURN;}
 true    { HANDLE_COLUMN; return TOK_TRUE;}
 false   { HANDLE_COLUMN; return TOK_FALSE;}
 [a-zA-Z][a-zA-Z0-9]*    { if(yyleng>100){
-                            emitir_error("identificador demasiado largo"); return TOK_ERROR;
+                            strcpy(error,"identificador demasiado largo"); return TOK_ERROR;
                           }
                            HANDLE_COLUMN; return TOK_IDENTIFICADOR;}
 [0-9]+    { HANDLE_COLUMN; return TOK_CONSTANTE_ENTERA;}
-. { emitir_error("simbolo no permitido"); return TOK_ERROR;}
+. { strcpy(error,"simbolo no permitido"); return TOK_ERROR;}
 %%
 void emitir_error(char* cadena_error){
     fprintf(stderr, "****Error en [lin %d, col %d]: %s (%s)\n", yylineno, column+1, cadena_error, yytext);
@@ -75,7 +76,7 @@ int main(int argc, char *argv[]){
       fprintf(stderr, "Error abriendo el fichero de salida\n");
       return -1;
     }
-    for(;a=yylex();){
+    for(;(a=yylex());){
         if(a==TOK_MAIN) fprintf(yyout, "TOK_MAIN\t%d\t%s\n", TOK_MAIN, yytext);
         else if(a==TOK_INT) fprintf(yyout, "TOK_INT\t%d\t%s\n", TOK_INT, yytext);
         else if(a==TOK_BOOLEAN) fprintf(yyout, "TOK_BOOLEAN\t%d\t%s\n", TOK_BOOLEAN, yytext);
@@ -114,6 +115,9 @@ int main(int argc, char *argv[]){
         else if(a==TOK_CONSTANTE_ENTERA) fprintf(yyout, "TOK_CONSTANTE_ENTERA\t%d\t%s\n", TOK_CONSTANTE_ENTERA, yytext);
         else if(a==TOK_TRUE) fprintf(yyout, "TOK_TRUE\t%d\t%s\n", TOK_TRUE, yytext);
         else if(a==TOK_FALSE) fprintf(yyout, "TOK_FALSE\t%d\t%s\n", TOK_FALSE, yytext);
-        else if(a==TOK_ERROR) break;
+        else if(a==TOK_ERROR){
+            emitir_error(error);
+            break;
+        }
     }
 }
