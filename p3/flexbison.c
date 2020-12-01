@@ -6,8 +6,7 @@ int yyerror(char *s){
     return fprintf(stderr, "****Error sintactico en [lin %d, col %d]\n", yylineno, column);
 }
 
-int main(int argc, char *argv[]){
-    
+int main(int argc, char *argv[]){    
     if(argc!=3){
       fprintf(stderr, "Numero de argumentos incorrecto, introducir ./alfa ficheroentrada.txt ficherosalida.txt\n");
       return -1;
