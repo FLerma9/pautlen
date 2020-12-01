@@ -1,6 +1,6 @@
 %{
     #include <stdio.h>
-    #include "compiler.h"
+    #include "pruebaSintactico.h"
     #define YYERROR_VERBOSE 1
     #define ECHOYYPARSE(rulenum, text) fprintf(yyout, ";R%d:\t%s\n", rulenum, text)
     int yylex();

@@ -1,15 +1,13 @@
 .PHONY: clean all
 
-MAIN=compiler
+MAIN=pruebaSintactico
 EJEMPLOS=ejemplo1 ejemplo2 ejemplo3
 DIREJEMPLOS=ejemplos
-EXEC=pruebaSintactico
 FLEX=flex
 BISON=bison $(BFLAGS)
 BFLAGS=-d -y -v
 
-all: bison lex 
-	gcc -Wall -o $(EXEC) lex.yy.c y.tab.c $(MAIN).c
+all: bison lex $(MAIN)
 
 lex: $(MAIN).h y.tab.h alfa.l 
 	$(FLEX) alfa.l
@@ -17,11 +15,14 @@ lex: $(MAIN).h y.tab.h alfa.l
 bison: $(MAIN).h alfa.y
 	$(BISON) alfa.y
 
+$(MAIN):
+	gcc -Wall -o $@ lex.yy.c y.tab.c $@.c
+
 compare_ejemplos: $(EJEMPLOS)
 
 ejemplo%: $(DIREJEMPLOS)/entrada_sin_%.txt
 	@echo - $@:
-	-./$(EXEC) $(DIREJEMPLOS)/entrada_sin_$*.txt misalida_sin_$*.txt
+	-./$(MAIN) $(DIREJEMPLOS)/entrada_sin_$*.txt misalida_sin_$*.txt
 	@echo - Diferencia con salida$* original:
 	diff -Bb $(DIREJEMPLOS)/salida_sin_$*.txt misalida_sin_$*.txt
 	@echo 

@@ -1,5 +1,5 @@
-#ifndef COMPILER_H
-#define COMPILER_H
+#ifndef PRUEBASINTACTICO_H
+#define PRUEBASINTACTICO_H
 
 extern int yylineno;
 extern int column;

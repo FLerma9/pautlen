@@ -1,7 +1,7 @@
 %{
     #include <stdio.h>
     #include "y.tab.h"
-    #include "compiler.h"
+    #include "pruebaSintactico.h"
     int next_column = 1, column = 1;
     void emitir_error(char* cadena_error);
     #define YY_USER_ACTION {\
