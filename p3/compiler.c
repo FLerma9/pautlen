@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "y.tab.h"
-#include "flexbison.h"
+#include "compiler.h"
 
 int yyerror(char *s){
     return fprintf(stderr, "****Error sintactico en [lin %d, col %d]\n", yylineno, column);

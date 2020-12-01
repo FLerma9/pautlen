@@ -1,8 +1,7 @@
 %{
     #include <stdio.h>
-    #include <string.h>
     #include "y.tab.h"
-    #include "flexbison.h"
+    #include "compiler.h"
     int next_column = 1, column = 1;
     void emitir_error(char* cadena_error);
     #define YY_USER_ACTION {\
@@ -18,6 +17,7 @@
 main    {return TOK_MAIN;}
 int    {return TOK_INT;}
 boolean    {return TOK_BOOLEAN;}
+array    {return TOK_ARRAY;}
 function    {return TOK_FUNCTION;}
 if    {return TOK_IF;}
 else    {return TOK_ELSE;}
@@ -61,8 +61,8 @@ false   {yylval.numero = 0; return TOK_FALSE;}
 [0-9]+    {yylval.numero = atoi(yytext);
             return TOK_CONSTANTE_ENTERA;}
 
-" " { }
-\t { }
+" " ;
+\t ;
 \n { next_column = 1;}
 "//".*\n ;
 . { emitir_error("simbolo no permitido");
