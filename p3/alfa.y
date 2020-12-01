@@ -60,8 +60,7 @@ funciones       :   funcion funciones   {ECHOYYPARSE(20, "<funciones> ::= <funci
                 |                       {ECHOYYPARSE(21, "<funciones> ::= ");}
 funcion         :   TOK_FUNCTION tipo identificador     
                     '(' parametros_funcion ')' '{' declaraciones_funcion sentencias '}'
-    {ECHOYYPARSE(22, "<funcion> ::= function <tipo> \
-        <identificador> ( <parametro_funcion> ) { <declaraciones_funcion> <sentencias> }");}
+    {ECHOYYPARSE(22, "<funcion> ::= function <tipo> <identificador> ( <parametro_funcion> ) { <declaraciones_funcion> <sentencias> }");}
 parametros_funcion  :   parametro_funcion resto_parametros_funcion
     {ECHOYYPARSE(23, "<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>");}
                     |   

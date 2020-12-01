@@ -28,4 +28,4 @@ ejemplo%: $(DIREJEMPLOS)/entrada_sin_%.txt
 	@echo 
 
 clean:
-	rm -f lex.yy.c y.* $(EXEC) misalida*
+	rm -f lex.yy.c y.* $(MAIN) misalida*
