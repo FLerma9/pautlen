@@ -28,7 +28,7 @@ void destroy_table(tablahash *tabla){
 }
 
 void * search_table(tablahash *tabla, char *key){
-    unsigned long itemhash = hash(key);
+    unsigned long itemhash = hash((unsigned char *)key);
     for(int i=0; i < tabla->tam; i++){
         unsigned long index = (itemhash+i)%tabla->tam;
         if(tabla->array[index].value == NULL) return NULL;
@@ -38,7 +38,7 @@ void * search_table(tablahash *tabla, char *key){
 }
 
 int insert_table(tablahash *tabla, char *key, void *value){
-    unsigned long itemhash = hash(key);
+    unsigned long itemhash = hash((unsigned char *)key);
     for(int i=0; i < tabla->tam; i++){
         unsigned long index = (itemhash+i)%tabla->tam;
         if(tabla->array[index].value == NULL){
@@ -57,12 +57,11 @@ unsigned long hash(unsigned char *str){
     unsigned long hash = 5381;
     int c;
 
-    while (c = *str++)
+    while ((c = *str++))
         hash = ((hash << 5) + hash) + c;
 
     return hash;
 }
-
 /*int main(){
     tablahash *tabla = create_table(100);
     insert_table(tabla, "HOLA", (void *)2);

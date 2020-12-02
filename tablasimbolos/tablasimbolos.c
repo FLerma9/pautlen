@@ -2,6 +2,7 @@
 #include <string.h>
 #include "tablasimbolos.h"
 #include "tablahash.h"
+#include <stdio.h>
 
 tabla_simbolos *create_tabla_simbolos(){
     tabla_simbolos *tabla = NULL;
@@ -26,7 +27,7 @@ void destroy_tabla_simbolos(tabla_simbolos *tabla){
 
 int iniciar_ambito_global(tabla_simbolos *tabla){
     tabla->global = create_table(TAM_LOCAL);
-    if(tabla->local == NULL) return ERR;
+    if(tabla->global == NULL) return ERR;
     return OK;
 }
 
@@ -54,12 +55,13 @@ void cerrar_ambito_local(tabla_simbolos *tabla){
                 free(tabla->local->array[i].value);
         }
         free(tabla->local);
+        tabla->local = NULL;
     }
 }
 
 int add_tabla_global(tabla_simbolos *tabla, char *key, informacion *info){
     void *r = search_table(tabla->global, key);
-    if (r == NULL) return ERR;
+    if (r != NULL) return ERR;
     return insert_table(tabla->global, key, (void *)info);
 }
 
@@ -70,7 +72,7 @@ informacion *search_tabla_global(tabla_simbolos *tabla, char *key){
 
 int add_tabla_local(tabla_simbolos *tabla, char *key, informacion *info){
     void *r = search_table(tabla->local, key);
-    if (r == NULL) return ERR;
+    if (r != NULL) return ERR;
     return insert_table(tabla->local, key, (void *)info);
 }
 
@@ -96,4 +98,24 @@ informacion *crear_informacion(const char *identificador, int categoria,
         info->num_variables = num_variables;
         info->pos_variable = pos_variable;
         return info;
+}
+
+int insertar_variable(tabla_simbolos *tabla, char *key, informacion *info){
+    if(tabla->local == NULL) return add_tabla_global(tabla,key,info);
+    return add_tabla_local(tabla,key,info);
+}
+
+/*int insertar_funcion(tabla_simbolos *tabla, char *key, informacion *info){
+    if(ERR == add_tabla_global(tabla,key,info)) return ERR;
+    if(ERR == iniciar_ambito_local(tabla,key,info)) return ERR;
+    return add_tabla_local(tabla,key,info);
+}*/
+
+informacion *buscar_identificador(tabla_simbolos *tabla, char *key){
+    informacion *ret;
+    if(tabla->local != NULL){
+        ret = search_tabla_local(tabla,key);
+        if(ret != NULL) return ret;
     }
+    return search_tabla_global(tabla,key);
+}

@@ -54,5 +54,8 @@ informacion *crear_informacion(const char *identificador, int categoria,
     int tipo, int escalar_o_vector, int size, int num_param, int pos_param,
     int num_variables, int pos_variable);
 
+int insertar_variable(tabla_simbolos *tabla, char *key, informacion *info);
+int insertar_funcion(tabla_simbolos *tabla, char *key, informacion *info);
+informacion *buscar_identificador(tabla_simbolos *tabla, char *key);
 
 #endif
