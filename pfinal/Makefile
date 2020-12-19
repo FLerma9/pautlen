@@ -1,6 +1,6 @@
 .PHONY: clean all
 
-MAIN=pruebaSintactico
+MAIN=alfa
 EJEMPLOS=ejemplo1 ejemplo2 ejemplo3
 DIREJEMPLOS=ejemplos
 FLEX=flex
@@ -17,6 +17,7 @@ bison: $(MAIN).h alfa.y
 
 $(MAIN):
 	gcc -Wall -o $@ lex.yy.c y.tab.c generacion.c tablahash.c tablasimbolos.c $@.c 
+
 ejemplo%: $(DIREJEMPLOS)/entrada_sin_%.txt
 	@echo - $@:
 	-./$(MAIN) $(DIREJEMPLOS)/entrada_sin_$*.txt misalida_sin_$*.txt

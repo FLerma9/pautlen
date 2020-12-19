@@ -1,7 +1,8 @@
 %{
     #include <stdio.h>
+    #include "alfa.h"
+    #include "tablasimbolos.h"
     #include "y.tab.h"
-    #include "pruebaSintactico.h"
     int next_column = 1, column = 1;
     void emitir_error(char* cadena_error);
     #define YY_USER_ACTION {\
@@ -49,16 +50,15 @@ return    {return TOK_RETURN;}
 "!"    {return TOK_NOT;}
 "<"    {return TOK_MENOR;}
 ">"    {return TOK_MAYOR;}
-true    {yylval.numero = 1; return TOK_TRUE;}
-false   {yylval.numero = 0; return TOK_FALSE;}
-[a-zA-Z][a-zA-Z0-9]*    { if(yyleng>100){
+true    {/*yylval.numero = 1;*/ return TOK_TRUE;}
+false   {/*yylval.numero = 0;*/ return TOK_FALSE;}
+[a-zA-Z][a-zA-Z0-9]*    { if(yyleng>MAX_IDENTIFIER){
                             emitir_error("identificador demasiado largo"); 
                             return ERROR;
-                          }
-                             
-                           strcpy(yylval.cadena, yytext);
+                          } 
+                           /*strcpy(yylval.cadena, yytext);*/
                            return TOK_IDENTIFICADOR;}
-[0-9]+    {yylval.numero = atoi(yytext);
+[0-9]+    {/*yylval.numero = atoi(yytext);*/
             return TOK_CONSTANTE_ENTERA;}
 
 " " ;

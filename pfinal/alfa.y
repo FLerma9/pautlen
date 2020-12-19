@@ -1,14 +1,15 @@
 %{
     #include <stdio.h>
-    #include "pruebaSintactico.h"
+    #include "alfa.h"
+    #include "tablasimbolos.h"
+    #include "generacion.h"
     #define ECHOYYPARSE(rulenum, text) fprintf(yyout, ";R%d:\t%s\n", rulenum, text)
     int yylex();
+    tabla_simbolos *tsymb;
 %}
-
 %union
 {
-    char cadena[100];
-    int numero;
+    informacion atrib;
 }
 
 %token TOK_MAIN 
@@ -25,12 +26,12 @@
 %left '*' '/' TOK_AND
 %nonassoc UMINUS
 
-%type <numero> elemento_vector exp comparacion constante constante_logica constante_entera
+%type <atrib> elemento_vector exp comparacion constante constante_logica constante_entera
 
 %start programa
 
 %%
-programa        :   TOK_MAIN '{' declaraciones funciones sentencias '}'
+programa        :  {tsymb = create_tabla_simbolos();} TOK_MAIN '{' declaraciones funciones sentencias '}' {destroy_tabla_simbolos(tsymb);}
     {ECHOYYPARSE(1, "<programa> ::= main { <declaraciones> <funciones> <sentencias> }");}  
 
 declaraciones   :   declaracion 
@@ -103,18 +104,18 @@ lectura         :   TOK_SCANF identificador {ECHOYYPARSE(54, "<lectura> ::= scan
 escritura       :   TOK_PRINTF exp          {ECHOYYPARSE(56, "<escritura> ::= printf <exp>");}
 retorno_funcion :   TOK_RETURN exp          {ECHOYYPARSE(61, "<retorno_funcion> ::= return <exp>");}
 
-exp             :   exp '+' exp     {$$ = $1 + $3; ECHOYYPARSE(72, "<exp> ::= <exp> + <exp>");}
-                |   exp '-' exp   {$$ = $1 - $3; ECHOYYPARSE(73, "<exp> ::= <exp> - <exp>");}
-                |   exp '/' exp    {$$ = $1 / $3; ECHOYYPARSE(74, "<exp> ::= <exp> / <exp>");}    
-                |   exp '*' exp   {$$ = $1 * $3; ECHOYYPARSE(75, "<exp> ::= <exp> * <exp>");}
-                |   '-' exp %prec UMINUS{$$ = - $2; ECHOYYPARSE(76, "<exp> ::= - <exp>");}
-                |   exp TOK_AND exp     {$$ = $1 && $3; ECHOYYPARSE(77, "<exp> ::= <exp> && <exp>");} 
-                |   exp TOK_OR exp      {$$ = $1 || $3; ECHOYYPARSE(78, "<exp> ::= <exp> || <exp>");}
-                |   TOK_NOT exp %prec UMINUS{$$ = ! $2; ECHOYYPARSE(79, "<exp> ::= ! <exp>");}
+exp             :   exp '+' exp     {/*$$ = $1 + $3*/; ECHOYYPARSE(72, "<exp> ::= <exp> + <exp>");}
+                |   exp '-' exp   {/*$$ = $1 - $3;*/ ECHOYYPARSE(73, "<exp> ::= <exp> - <exp>");}
+                |   exp '/' exp    {/*$$ = $1 / $3;*/ ECHOYYPARSE(74, "<exp> ::= <exp> / <exp>");}    
+                |   exp '*' exp   {/*$$ = $1 * $3;*/ ECHOYYPARSE(75, "<exp> ::= <exp> * <exp>");}
+                |   '-' exp %prec UMINUS{/*$$ = - $2;*/ ECHOYYPARSE(76, "<exp> ::= - <exp>");}
+                |   exp TOK_AND exp     {/*$$ = $1 && $3;*/ ECHOYYPARSE(77, "<exp> ::= <exp> && <exp>");} 
+                |   exp TOK_OR exp      {/*$$ = $1 || $3;*/ ECHOYYPARSE(78, "<exp> ::= <exp> || <exp>");}
+                |   TOK_NOT exp %prec UMINUS{/*$$ = ! $2;*/ ECHOYYPARSE(79, "<exp> ::= ! <exp>");}
                 |   identificador       {ECHOYYPARSE(80, "<exp> ::= <identificador>");}
                 |   constante           {ECHOYYPARSE(81, "<exp> ::= <constante>");}
-                |   '(' exp ')'         {$$ = $2; ECHOYYPARSE(82, "<exp> ::= ( <exp> )");}
-                |   '(' comparacion ')' {$$ = $2; ECHOYYPARSE(83, "<exp> ::= ( <comparacion> )");}
+                |   '(' exp ')'         {/*$$ = $2;*/ ECHOYYPARSE(82, "<exp> ::= ( <exp> )");}
+                |   '(' comparacion ')' {/*$$ = $2;*/ ECHOYYPARSE(83, "<exp> ::= ( <comparacion> )");}
                 |   elemento_vector     {ECHOYYPARSE(85, "<exp> ::= <elemento_vector>");}
                 |   identificador '(' lista_expresiones ')' 
     {ECHOYYPARSE(88, "<exp> ::= <identificador> ( <lista_expresiones> )");}
@@ -128,12 +129,12 @@ resto_lista_expresiones :   ',' exp resto_lista_expresiones
                         |
     {ECHOYYPARSE(92, "<resto_lista_expresiones> ::= ");}
 
-comparacion     :   exp TOK_IGUAL exp       {$$ = $1 == $3; ECHOYYPARSE(93, "<exp> ::= <exp> == <exp>");}
-                |   exp TOK_DISTINTO exp    {$$ = $1 != $3; ECHOYYPARSE(94, "<exp> ::= <exp> != <exp>");}
-                |   exp TOK_MENORIGUAL exp  {$$ = $1 <= $3; ECHOYYPARSE(95, "<exp> ::= <exp> <= <exp>");}
-                |   exp TOK_MAYORIGUAL exp  {$$ = $1 >= $3; ECHOYYPARSE(96, "<exp> ::= <exp> >= <exp>");}
-                |   exp TOK_MENOR exp       {$$ = $1 < $3; ECHOYYPARSE(97, "<exp> ::= <exp> < <exp>");}
-                |   exp TOK_MAYOR exp       {$$ = $1 > $3; ECHOYYPARSE(98, "<exp> ::= <exp> > <exp>");}
+comparacion     :   exp TOK_IGUAL exp       {/*$$ = $1 == $3;*/ ECHOYYPARSE(93, "<exp> ::= <exp> == <exp>");}
+                |   exp TOK_DISTINTO exp    {/*$$ = $1 != $3;*/ ECHOYYPARSE(94, "<exp> ::= <exp> != <exp>");}
+                |   exp TOK_MENORIGUAL exp  {/*$$ = $1 <= $3;*/ ECHOYYPARSE(95, "<exp> ::= <exp> <= <exp>");}
+                |   exp TOK_MAYORIGUAL exp  {/*$$ = $1 >= $3;*/ ECHOYYPARSE(96, "<exp> ::= <exp> >= <exp>");}
+                |   exp TOK_MENOR exp       {/*$$ = $1 < $3;*/ ECHOYYPARSE(97, "<exp> ::= <exp> < <exp>");}
+                |   exp TOK_MAYOR exp       {/*$$ = $1 > $3;*/ ECHOYYPARSE(98, "<exp> ::= <exp> > <exp>");}
 
 constante       :   constante_logica {ECHOYYPARSE(99, "<constante> ::= <constante_logica>");}
                 |   constante_entera {ECHOYYPARSE(100, "<constante> ::= <constante_entera>");}
