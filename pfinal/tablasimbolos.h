@@ -12,7 +12,8 @@ typedef struct informacion{
     int tipo;
     int escalar_o_vector;
     //int size; // pag 67, como hacer compr de tamanio en temp ej?¿
-    int valor_entero;    
+    int valor_entero;
+    int es_direccion;
     int num_param;
     int pos_param;
     int num_variables;

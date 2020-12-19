@@ -12,6 +12,10 @@ int error_sem(s_error error, char *identificador){
     fprintf(stderr, 
       "****Error semantico en lin %d: Declaracion duplicada.\n", 
         yylineno);
+  else if (error == arit_bool)
+    fprintf(stderr, 
+      "****Error semantico en lin %d: Operacion aritmetica con operandos boolean.\n", 
+        yylineno);
   else if (error == size_v)
     fprintf(stderr, 
       "****Error semantico en lin %d: El tamanyo del vector %s excede los limites permitidos (1,64).\n", 

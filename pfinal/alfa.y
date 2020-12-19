@@ -12,6 +12,8 @@
     int clase_actual;
     int tamano_actual;
     int posicion_actual;
+
+    int mismo_tipo(int tipo, int op1tipo, int op2tipo);
 %}
 %union
 {
@@ -111,7 +113,7 @@ elemento_vector :   TOK_IDENTIFICADOR '[' exp ']'
 
 condicional     :   TOK_IF '(' exp ')' '{' sentencias '}'
     {ECHOYYPARSE(50, "<condicional> ::= if ( <exp> ) { <sentencias> }");}
-                |   TOK_IF '(' exp ')' '{' sentencias '}' TOK_ELSE '{' sentencias '}'
+                |   TOK_IF '(' exp ')' '{' sentencias '}' TOK_ELSE '{' sentencias '}' 
     {ECHOYYPARSE(51, "<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }");}
 bucle           :   TOK_WHILE '(' exp ')' '{' sentencias '}'
     {ECHOYYPARSE(52, "<bucle> ::= while ( <exp> ) { <sentencias> }");}
@@ -120,15 +122,43 @@ lectura         :   TOK_SCANF TOK_IDENTIFICADOR {ECHOYYPARSE(54, "<lectura> ::= 
 escritura       :   TOK_PRINTF exp          {ECHOYYPARSE(56, "<escritura> ::= printf <exp>");}
 retorno_funcion :   TOK_RETURN exp          {ECHOYYPARSE(61, "<retorno_funcion> ::= return <exp>");}
 
-exp             :   exp '+' exp     {/*$$ = $1 + $3*/; ECHOYYPARSE(72, "<exp> ::= <exp> + <exp>");}
-                |   exp '-' exp   {/*$$ = $1 - $3;*/ ECHOYYPARSE(73, "<exp> ::= <exp> - <exp>");}
-                |   exp '/' exp    {/*$$ = $1 / $3;*/ ECHOYYPARSE(74, "<exp> ::= <exp> / <exp>");}    
-                |   exp '*' exp   {/*$$ = $1 * $3;*/ ECHOYYPARSE(75, "<exp> ::= <exp> * <exp>");}
-                |   '-' exp %prec UMINUS{/*$$ = - $2;*/ ECHOYYPARSE(76, "<exp> ::= - <exp>");}
+exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return error_sem(arit_bool, NULL);
+                                else {
+                                    $$.tipo = INT;
+                                    $$.es_direccion = 0;
+                                    sumar(yyout, $1.es_direccion, $3.es_direccion); 
+                                    ECHOYYPARSE(72, "<exp> ::= <exp> + <exp>");
+                                    }
+                                }
+                |   exp '-' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return error_sem(arit_bool, NULL);
+                                else {
+                                    $$.tipo = INT;
+                                    $$.es_direccion = 0;
+                                    restar(yyout, $1.es_direccion, $3.es_direccion); 
+                                    ECHOYYPARSE(73, "<exp> ::= <exp> - <exp>");
+                                    }
+                                }
+                |   exp '/' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return error_sem(arit_bool, NULL);
+                                else {
+                                    $$.tipo = INT;
+                                    $$.es_direccion = 0;
+                                    dividir(yyout, $1.es_direccion, $3.es_direccion); 
+                                    ECHOYYPARSE(74, "<exp> ::= <exp> / <exp>");
+                                    }
+                                }
+                |   exp '*' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return error_sem(arit_bool, NULL);
+                                else {
+                                    $$.tipo = INT;
+                                    $$.es_direccion = 0;
+                                    multiplicar(yyout, $1.es_direccion, $3.es_direccion); 
+                                    ECHOYYPARSE(75, "<exp> ::= <exp> * <exp>");
+                                    }
+                                }
+                |   '-' exp %prec UMINUS{cambiar_signo(yyout, $2.es_direccion);/*$$ = - $2;*/ ECHOYYPARSE(76, "<exp> ::= - <exp>");}
                 |   exp TOK_AND exp     {/*$$ = $1 && $3;*/ ECHOYYPARSE(77, "<exp> ::= <exp> && <exp>");} 
                 |   exp TOK_OR exp      {/*$$ = $1 || $3;*/ ECHOYYPARSE(78, "<exp> ::= <exp> || <exp>");}
                 |   TOK_NOT exp %prec UMINUS{/*$$ = ! $2;*/ ECHOYYPARSE(79, "<exp> ::= ! <exp>");}
-                |   TOK_IDENTIFICADOR       {ECHOYYPARSE(80, "<exp> ::= <TOK_IDENTIFICADOR>");}
+                |   TOK_IDENTIFICADOR   {ECHOYYPARSE(80, "<exp> ::= <TOK_IDENTIFICADOR>");}
                 |   constante           {ECHOYYPARSE(81, "<exp> ::= <constante>");}
                 |   '(' exp ')'         {/*$$ = $2;*/ ECHOYYPARSE(82, "<exp> ::= ( <exp> )");}
                 |   '(' comparacion ')' {/*$$ = $2;*/ ECHOYYPARSE(83, "<exp> ::= ( <comparacion> )");}
@@ -153,7 +183,7 @@ comparacion     :   exp TOK_IGUAL exp       {/*$$ = $1 == $3;*/ ECHOYYPARSE(93, 
                 |   exp TOK_MAYOR exp       {/*$$ = $1 > $3;*/ ECHOYYPARSE(98, "<exp> ::= <exp> > <exp>");}
 
 constante       :   constante_logica {ECHOYYPARSE(99, "<constante> ::= <constante_logica>");}
-                |   constante_entera {ECHOYYPARSE(100, "<constante> ::= <constante_entera>");}
+                |   constante_entera {$$.tipo = INT; $$.es_direccion = 0; ECHOYYPARSE(100, "<constante> ::= <constante_entera>");}
           
 constante_logica    :   TOK_TRUE {ECHOYYPARSE(102, "<constante_logica> ::= true");}
                     |   TOK_FALSE {ECHOYYPARSE(103, "<constante_logica> ::= false");}
@@ -172,3 +202,6 @@ identificador   :   TOK_IDENTIFICADOR
                     }
 
 %%
+int mismo_tipo(int tipo, int op1tipo, int op2tipo){
+    return op1tipo == op2tipo && tipo==op1tipo;
+}
