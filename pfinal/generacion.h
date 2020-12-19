@@ -4,7 +4,7 @@
 /* Declaraciones de tipos de datos del compilador */
 #define ENTERO 1
 #define BOOLEANO 2
-#define MAX_ETIQUETAS 20
+#define MAX_ETIQUETAS 200
 /* OBSERVACIÓN GENERAL A TODAS LAS FUNCIONES:
 Todas ellas escriben el código NASM a un FILE* proporcionado como primer
 argumento.

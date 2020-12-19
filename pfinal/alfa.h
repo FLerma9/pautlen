@@ -17,6 +17,10 @@
 #define ESCALAR 1
 #define VECTOR 2
 
+typedef enum operaciones{
+  SUMA, RESTA, MULTIPLICACION, DIVISION, CAMBIO_SIGNO, AND, OR, NOT
+}operaciones;
+
 typedef enum s_error{
     dec_dup, undec_acc, arit_bool, log_int, comp_bool, cond_int,
     bucl_cond_int, inc_num_pam, incomp_assgn, size_v, index_in_nov,

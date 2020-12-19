@@ -40,12 +40,19 @@ informacion *search_tabla_global(tabla_simbolos *tabla, char *key);
 int add_tabla_local(tabla_simbolos *tabla, char *key, informacion *info);
 informacion *search_tabla_local(tabla_simbolos *tabla, char *key);
 
+
+/* Crea una variable de informacion con los valores pasados */
 informacion *crear_informacion(const char *identificador, int categoria,
     int tipo, int escalar_o_vector, int valor_entero, int num_param, int pos_param,
     int num_variables, int pos_variable);
 
+
+/* Inserta una variable en la tabla */
 int insertar_variable(tabla_simbolos *tabla, char *key, informacion *info);
-int insertar_funcion(tabla_simbolos *tabla, char *key, informacion *info);
+//int insertar_funcion(tabla_simbolos *tabla, char *key, informacion *info);
+
+
+/* Busca un identificador en la tabla */
 informacion *buscar_identificador(tabla_simbolos *tabla, char *key);
 
 #endif
