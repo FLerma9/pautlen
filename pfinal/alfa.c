@@ -1,9 +1,27 @@
 #include <stdio.h>
-#include "y.tab.h"
 #include "alfa.h"
+#include "y.tab.h"
+
 
 int yyerror(char *s){
     return fprintf(stderr, "****Error sintactico en [lin %d, col %d]\n", yylineno, column);
+}
+
+int error_sem(s_error error, char *identificador){
+  if (error == dec_dup)
+    fprintf(stderr, 
+      "****Error semantico en lin %d: Declaracion duplicada.\n", 
+        yylineno);
+  else if (error == size_v)
+    fprintf(stderr, 
+      "****Error semantico en lin %d: El tamanyo del vector %s excede los limites permitidos (1,64).\n", 
+        yylineno, identificador);
+  return 1;
+}
+
+int error_unknown(){
+  fprintf(stderr, "****Error interno del programa\n");
+  return 1;
 }
 
 int main(int argc, char *argv[]){    

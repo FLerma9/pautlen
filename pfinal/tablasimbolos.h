@@ -6,24 +6,13 @@
 #define TAM_GLOBAL 5000
 #define TAM_LOCAL 500
 
-#define MAX_VECTOR 64
-
-#define VARIABLE 1
-#define PARAMETRO 2
-#define FUNCION 3
-
-#define BOOLEAN 1
-#define INT 2
-
-#define ESCALAR 1
-#define VECTOR 2
-
 typedef struct informacion{
     char identificador[MAX_IDENTIFIER+1];
     int categoria;
     int tipo;
     int escalar_o_vector;
-    int size;
+    //int size; // pag 67, como hacer compr de tamanio en temp ej?¿
+    int valor_entero;    
     int num_param;
     int pos_param;
     int num_variables;
@@ -51,7 +40,7 @@ int add_tabla_local(tabla_simbolos *tabla, char *key, informacion *info);
 informacion *search_tabla_local(tabla_simbolos *tabla, char *key);
 
 informacion *crear_informacion(const char *identificador, int categoria,
-    int tipo, int escalar_o_vector, int size, int num_param, int pos_param,
+    int tipo, int escalar_o_vector, int valor_entero, int num_param, int pos_param,
     int num_variables, int pos_variable);
 
 int insertar_variable(tabla_simbolos *tabla, char *key, informacion *info);

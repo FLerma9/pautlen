@@ -21,8 +21,6 @@ $(MAIN):
 ejemplo%: $(DIREJEMPLOS)/entrada_sin_%.txt
 	@echo - $@:
 	-./$(MAIN) $(DIREJEMPLOS)/entrada_sin_$*.txt misalida_sin_$*.txt
-	@echo - Diferencia con salida$* original:
-	diff -Bb $(DIREJEMPLOS)/salida_sin_$*.txt misalida_sin_$*.txt
 	@echo 
 
 

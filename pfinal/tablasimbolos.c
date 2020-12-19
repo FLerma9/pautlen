@@ -81,7 +81,7 @@ informacion *search_tabla_local(tabla_simbolos *tabla, char *key){
 }
 
 informacion *crear_informacion(const char *identificador, int categoria,
-    int tipo, int escalar_o_vector, int size, int num_param, int pos_param,
+    int tipo, int escalar_o_vector, int valor_entero, int num_param, int pos_param,
     int num_variables, int pos_variable){
         if(strlen(identificador) > MAX_IDENTIFIER) return NULL;
         informacion *info = NULL;
@@ -92,7 +92,7 @@ informacion *crear_informacion(const char *identificador, int categoria,
         info->categoria = categoria;
         info->tipo = tipo;
         info->escalar_o_vector = escalar_o_vector;
-        info->size = size;
+        info->valor_entero = valor_entero;
         info->num_param = num_param;
         info->pos_param = pos_param;
         info->num_variables = num_variables;

@@ -4,8 +4,8 @@
 #define NUMEXTF 7
 
 //Array con los posibles errores, primero es el nombre, segundo la etiqueta, tercero el mensaje
-char err[NUMERR][3][40] = {{"ErrorDiv0", "_msgErrorDiv0", "ERROR: division por 0"},
-                {"ErrorIndexOutOfRange", "_msgErrorIndexOutOfRange", "ERROR: indice de vector fuera de rango"}};
+char err[NUMERR][3][50] = {{"ErrorDiv0", "_msgErrorDiv0", "****Error de ejecucion: Division por cero."},
+                {"ErrorIndexOutOfRange", "_msgErrorIndexOutOfRange", "****Error de ejecucion: Indice fuera de rango."}};
 //Array con las posibles funciones de la libreria alfalib
 char func_extern[NUMEXTF][20] = {"print_int", "print_boolean", "print_string",
                              "print_blank", "print_endofline", "scan_int", "scan_boolean"};

@@ -1,0 +1,8 @@
+main {
+  int x, y, w;
+  //int x;
+  boolean r;
+  array int [44] a, b;
+  array boolean [32] c;
+  return x; 
+}

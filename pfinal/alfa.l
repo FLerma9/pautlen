@@ -9,7 +9,7 @@
         if(yy_act < YY_NUM_RULES - 3 && yyleng < 100){\
             column = next_column;\
             next_column += yyleng;\
-            if(yy_act < YY_NUM_RULES - 5) fprintf(yyout, ";D:\t%s\n", yytext);\
+            if(yy_act < YY_NUM_RULES - 5) fprintf(stdout, ";D:\t%s\n", yytext);\
         }\
     }
 %}
@@ -56,9 +56,9 @@ false   {/*yylval.numero = 0;*/ return TOK_FALSE;}
                             emitir_error("identificador demasiado largo"); 
                             return ERROR;
                           } 
-                           /*strcpy(yylval.cadena, yytext);*/
+                           strcpy(yylval.atrib.identificador, yytext);
                            return TOK_IDENTIFICADOR;}
-[0-9]+    {/*yylval.numero = atoi(yytext);*/
+[0-9]+    {yylval.atrib.valor_entero = atoi(yytext);
             return TOK_CONSTANTE_ENTERA;}
 
 " " ;
