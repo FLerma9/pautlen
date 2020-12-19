@@ -204,7 +204,7 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                 |   '(' exp ')'         {/*$$ = $2;*/
                                         $$.tipo = $2.tipo; $$.es_direccion = $2.es_direccion; $$.valor_entero = $2.valor_entero;
                                         ECHOYYPARSE(82, "<exp> ::= ( <exp> )");}
-                |   '(' comparacion ')' {/*$$ = $2;*/
+                |   '(' comparacion ')' {$$.tipo = BOOLEAN; $$.es_direccion = 0; $$valor_entero = $2.valor_entero;
 
                                         ECHOYYPARSE(83, "<exp> ::= ( <comparacion> )");}
                 |   elemento_vector     {ECHOYYPARSE(85, "<exp> ::= <elemento_vector>");}
