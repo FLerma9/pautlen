@@ -154,7 +154,14 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                                     ECHOYYPARSE(75, "<exp> ::= <exp> * <exp>");
                                     }
                                 }
-                |   '-' exp %prec UMINUS{cambiar_signo(yyout, $2.es_direccion);/*$$ = - $2;*/ ECHOYYPARSE(76, "<exp> ::= - <exp>");}
+                |   '-' exp %prec UMINUS{if($2.tipo!=INT) return error_sem(arit_bool, NULL);
+                                        else{
+                                            $$.tipo = INT;
+                                            $$.es_direccion = 0;
+                                            cambiar_signo(yyout, $2.es_direccion);
+                                            ECHOYYPARSE(76, "<exp> ::= - <exp>");
+                                            }
+                                        }
                 |   exp TOK_AND exp     {/*$$ = $1 && $3;*/ ECHOYYPARSE(77, "<exp> ::= <exp> && <exp>");} 
                 |   exp TOK_OR exp      {/*$$ = $1 || $3;*/ ECHOYYPARSE(78, "<exp> ::= <exp> || <exp>");}
                 |   TOK_NOT exp %prec UMINUS{/*$$ = ! $2;*/ ECHOYYPARSE(79, "<exp> ::= ! <exp>");}
