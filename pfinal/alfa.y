@@ -109,7 +109,11 @@ sentencia_simple    :   asignacion          {ECHOYYPARSE(34, "<sentencia_simple>
 bloque          :   condicional             {ECHOYYPARSE(40, "<bloque> ::= <condicional>");}
                 |   bucle                   {ECHOYYPARSE(41, "<bloque> ::= <bucle>");}
 
-asignacion      :   TOK_IDENTIFICADOR '=' exp   {ECHOYYPARSE(43, "<asignacion> ::= <TOK_IDENTIFICADOR> = <exp>");}
+asignacion      :   TOK_IDENTIFICADOR '=' exp   {informacion *i = buscar_identificador(tsymb, $1.identificador);
+                                                if (i == NULL) return error_sem(undec_acc, $1.identificador);
+                                                else if (i->tipo != $3.tipo) return error_sem(incomp_assgn, NULL);
+                                                asignar(yyout, $1.identificador, $1.es_direccion);
+                                                ECHOYYPARSE(43, "<asignacion> ::= <TOK_IDENTIFICADOR> = <exp>");}
                 |   elemento_vector '=' exp {ECHOYYPARSE(44, "<asignacion> ::= <elemento_vector> = <exp>");}
 
 elemento_vector :   TOK_IDENTIFICADOR '[' exp ']'
@@ -166,24 +170,21 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                                             ECHOYYPARSE(76, "<exp> ::= - <exp>");
                                             }
                                         }
-                |   exp TOK_AND exp     {/*$$ = $1 && $3;*/
-                                         if(!mismo_tipo(BOOLEAN, $1.tipo, $3.tipo)) return error_sem(log_int, NULL);
+                |   exp TOK_AND exp     {if(!mismo_tipo(BOOLEAN, $1.tipo, $3.tipo)) return error_sem(log_int, NULL);
                                          else{
                                            $$.tipo = BOOLEAN;
                                            $$.es_direccion = 0;
                                            ejecutar_operacion(AND, $1, $3);
                                          }
                                          ECHOYYPARSE(77, "<exp> ::= <exp> && <exp>");}
-                |   exp TOK_OR exp      {/*$$ = $1 || $3;*/
-                                        if(!mismo_tipo(BOOLEAN, $1.tipo, $3.tipo)) return error_sem(log_int, NULL);
+                |   exp TOK_OR exp      {if(!mismo_tipo(BOOLEAN, $1.tipo, $3.tipo)) return error_sem(log_int, NULL);
                                         else{
                                           $$.tipo = BOOLEAN;
                                           $$.es_direccion = 0;
                                           ejecutar_operacion(OR, $1, $3);
                                         }
                                         ECHOYYPARSE(78, "<exp> ::= <exp> || <exp>");}
-                |   TOK_NOT exp %prec UMINUS{/*$$ = ! $2;*/
-                                            if($2.tipo != BOOLEAN) return error_sem(log_int, NULL);
+                |   TOK_NOT exp %prec UMINUS{if($2.tipo != BOOLEAN) return error_sem(log_int, NULL);
                                             else{
                                               $$.tipo = BOOLEAN;
                                               $$.es_direccion = 0;
@@ -193,7 +194,7 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                                             ECHOYYPARSE(79, "<exp> ::= ! <exp>");}
                 |   TOK_IDENTIFICADOR   {
                                         informacion *i = buscar_identificador(tsymb, $1.identificador);
-                                        if (i == NULL) return 1; // TODO ERROR
+                                        if (i == NULL) return error_sem(undec_acc, $1.identificador);
                                         strcpy($$.identificador, $1.identificador);
                                         $$.tipo = i->tipo;
                                         $$.es_direccion = 1;
@@ -204,8 +205,7 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                 |   '(' exp ')'         {/*$$ = $2;*/
                                         $$.tipo = $2.tipo; $$.es_direccion = $2.es_direccion; $$.valor_entero = $2.valor_entero;
                                         ECHOYYPARSE(82, "<exp> ::= ( <exp> )");}
-                |   '(' comparacion ')' {$$.tipo = BOOLEAN; $$.es_direccion = 0; $$valor_entero = $2.valor_entero;
-
+                |   '(' comparacion ')' {$$.tipo = BOOLEAN; $$.es_direccion = 0; $$.valor_entero = $2.valor_entero;
                                         ECHOYYPARSE(83, "<exp> ::= ( <comparacion> )");}
                 |   elemento_vector     {ECHOYYPARSE(85, "<exp> ::= <elemento_vector>");}
                 |   TOK_IDENTIFICADOR '(' lista_expresiones ')'
