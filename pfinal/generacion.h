@@ -229,6 +229,18 @@ Generación de código para indexar un vector
 void escribir_elemento_vector(FILE * fpasm,char * nombre_vector,
     int tam_max, int exp_es_direccion);
 
+    /*
+    Función para asignar a un elemento de un vector un valor en la cima de la
+    pila
+    Se debe asumir que en la pila estará:
+        -Encima (se ha introducido en la pila antes) lo que hay que asignar
+        -Debajo (en la cima) la dirección donde hay que asignar (escribir_elemento_vector)
+    es_variable:
+        -Es 1 si la expresión que se va a asignar es algo asimilable a una variable
+        (identificador, o elemento de vector)
+        -Es 0 en caso contrario (constante u otro tipo de expresión)
+    */
+void asignarElementoVector(FILE* fpasm, int es_variable);
 /*
  Generación de código para iniciar la declaración de una función.
  Es necesario proporcionar

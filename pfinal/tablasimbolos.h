@@ -11,7 +11,7 @@ typedef struct informacion{
     int categoria;
     int tipo;
     int clase;
-    //int size; // pag 67, como hacer compr de tamanio en temp ej?¿
+    int tamano;
     int valor_entero;
     int es_direccion;
     int num_param;
@@ -43,7 +43,7 @@ informacion *search_tabla_local(tabla_simbolos *tabla, char *key);
 
 /* Crea una variable de informacion con los valores pasados */
 informacion *crear_informacion(const char *identificador, int categoria,
-    int tipo, int clase, int valor_entero, int num_param, int pos_param,
+    int tipo, int clase, int tamano, int valor_entero, int num_param, int pos_param,
     int num_variables, int pos_variable);
 
 

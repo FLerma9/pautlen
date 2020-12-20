@@ -1,0 +1,9 @@
+main {
+  array int [30] x, y;
+  int w, z;
+  boolean a, b, c;
+  w = 3;
+  z = 1;
+  x[2] = 3;
+  printf x[2];
+}

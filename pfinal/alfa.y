@@ -114,27 +114,33 @@ asignacion      :   TOK_IDENTIFICADOR '=' exp   {informacion *i = buscar_identif
                                                 else if (i->tipo != $3.tipo) return error_sem(incomp_assgn, NULL);
                                                 asignar(yyout, $1.identificador, $3.es_direccion);
                                                 ECHOYYPARSE(43, "<asignacion> ::= <TOK_IDENTIFICADOR> = <exp>");}
-                |   elemento_vector '=' exp {ECHOYYPARSE(44, "<asignacion> ::= <elemento_vector> = <exp>");}
+                |   elemento_vector '=' exp {if ($1.tipo != $3.tipo) return error_sem(incomp_assgn, NULL);
+                                            asignarElementoVector(yyout, $3.es_direccion);
+                                            ECHOYYPARSE(44, "<asignacion> ::= <elemento_vector> = <exp>");}
 
 elemento_vector :   TOK_IDENTIFICADOR '[' exp ']'{if($3.tipo != ENTERO) return error_sem(index_noint, NULL);
                                                   informacion *i = buscar_identificador(tsymb, $1.identificador);
                                                   if (i == NULL) return error_sem(undec_acc, $1.identificador);
+                                                  else if (i->categoria == FUNCION) return 1;
                                                   else if (i->clase != VECTOR) return error_sem(index_in_nov, $1.identificador);
-                                                  // METER ALGO PARA COMPROBAR INDEXACION BIEN POR TAMANIO VECTOR
-                                                  // ACCION
-                                                ECHOYYPARSE(48, "<elemento_vector> ::= <TOK_IDENTIFICADOR> [ <exp> ]");}
+                                                  $$.tipo = i->tipo;
+                                                  $$.es_direccion = 1;
+                                                  escribir_elemento_vector(yyout, $1.identificador, i->tamano, $3.es_direccion);
+                                                  ECHOYYPARSE(48, "<elemento_vector> ::= <TOK_IDENTIFICADOR> [ <exp> ]");}
 
-condicional     :   TOK_IF '(' exp ')' '{' sentencias '}'
+condicional     :   if_cond ')' '{' sentencias '}'
     {ECHOYYPARSE(50, "<condicional> ::= if ( <exp> ) { <sentencias> }");}
-                |   TOK_IF '(' exp ')' '{' sentencias '}' TOK_ELSE '{' sentencias '}'
+                |   if_then TOK_ELSE '{' sentencias '}' {}
     {ECHOYYPARSE(51, "<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }");}
+if_cond         :   TOK_IF '(' exp {}
+if_then         :   if_cond ')' '{' sentencias '}' {}
 bucle           :   TOK_WHILE '(' exp ')' '{' sentencias '}'
     {ECHOYYPARSE(52, "<bucle> ::= while ( <exp> ) { <sentencias> }");}
 
 lectura         :   TOK_SCANF TOK_IDENTIFICADOR {
                                                 informacion *i = buscar_identificador(tsymb, $2.identificador);
                                                 if (i == NULL) return error_sem(undec_acc, $2.identificador);
-                                                else if (i->categoria == FUNCION) return 1;                      
+                                                else if (i->categoria == FUNCION) return 1;
                                                 else if (i->clase == VECTOR) return 1;
                                                 leer(yyout, i->identificador, i->tipo);
                                                 ECHOYYPARSE(54, "<lectura> ::= scanf <TOK_IDENTIFICADOR>");}
@@ -213,15 +219,18 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                                         strcpy($$.identificador, $1.identificador);
                                         $$.tipo = i->tipo;
                                         $$.es_direccion = 1;
+                                        escribir_aux($$);
                                         ECHOYYPARSE(80, "<exp> ::= <TOK_IDENTIFICADOR>");
                                         }
                 |   constante           {$$.tipo = $1.tipo; $$.es_direccion = 0; $$.valor_entero = $1.valor_entero;
+                                        escribir_aux($$);
                                         ECHOYYPARSE(81, "<exp> ::= <constante>");}
                 |   '(' exp ')'         {$$.tipo = $2.tipo; $$.es_direccion = $2.es_direccion; $$.valor_entero = $2.valor_entero;
                                         ECHOYYPARSE(82, "<exp> ::= ( <exp> )");}
                 |   '(' comparacion ')' {$$.tipo = BOOLEAN; $$.es_direccion = 0; $$.valor_entero = $2.valor_entero;
+                                        //escribir_aux($$);
                                         ECHOYYPARSE(83, "<exp> ::= ( <comparacion> )");}
-                |   elemento_vector     {$$.tipo = $1.tipo; $$.es_direccion = 1; 
+                |   elemento_vector     {$$.tipo = $1.tipo; $$.es_direccion = 1;
                                         ECHOYYPARSE(85, "<exp> ::= <elemento_vector>");}
                 |   TOK_IDENTIFICADOR '(' lista_expresiones ')'
     {ECHOYYPARSE(88, "<exp> ::= <TOK_IDENTIFICADOR> ( <lista_expresiones> )");}
@@ -255,7 +264,7 @@ constante_entera :  TOK_CONSTANTE_ENTERA    {
 identificador   :   TOK_IDENTIFICADOR
                     {
                         informacion *inf = crear_informacion($1.identificador, categoria_actual,
-                            tipo_actual, clase_actual, 0, 0, 0, 0, 0);
+                            tipo_actual, clase_actual, tamano_actual, 0, 0, 0, 0, 0);
                         if(inf == NULL) return error_unknown();
                         if(add_tabla_global(tsymb, $1.identificador, inf) == ERR)
                             return error_sem(dec_dup, $1.identificador);
@@ -278,32 +287,18 @@ void escribir_aux(informacion info){
 }
 
 void ejecutar_operacion(int op, informacion info1, informacion info2){
-  escribir_aux(info1);
-  if(op == SUMA){
-    escribir_aux(info2);
+  if(op == SUMA)
     sumar(yyout, info1.es_direccion, info2.es_direccion);
-  }
-  else if(op == RESTA){
-    escribir_aux(info2);
+  else if(op == RESTA)
     restar(yyout, info1.es_direccion, info2.es_direccion);
-  }
-  else if(op == MULTIPLICACION){
-    escribir_aux(info2);
+  else if(op == MULTIPLICACION)
     multiplicar(yyout, info1.es_direccion, info2.es_direccion);
-  }
-  else if(op == DIVISION){
-    escribir_aux(info2);
+  else if(op == DIVISION)
     dividir(yyout, info1.es_direccion, info2.es_direccion);
-  }
-  else if(op == CAMBIO_SIGNO){
+  else if(op == CAMBIO_SIGNO)
     cambiar_signo(yyout, info1.es_direccion);
-  }
-  else if(op == AND){
-    escribir_aux(info2);
+  else if(op == AND)
     y(yyout, info1.es_direccion, info2.es_direccion);
-  }
-  else if(op == OR){
-    escribir_aux(info2);
+  else if(op == OR)
     o(yyout, info1.es_direccion, info2.es_direccion);
-  }
 }

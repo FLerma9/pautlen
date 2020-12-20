@@ -1,8 +1,12 @@
 main {
   int x, y, w;
   boolean a, b, c;
-  x = y + 3;
-  b = a && true;
-
-  printf x; 
+  x = 3;
+  y = x*2;
+  w = x / y + 3*x;
+  printf w;
+  a = true;
+  b = false || a;
+  c = a && (b || false) || false;
+  printf c;
 }
