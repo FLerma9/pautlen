@@ -127,7 +127,7 @@ void dividir(FILE* fpasm, int es_variable_1, int es_variable_2){
     aux_pop_op(fpasm, es_variable_1, 1);
     fprintf(fpasm, "\tcdq\n");
     fprintf(fpasm, "\tidiv ecx\n"); // div operando 1 operando 2 -> edx:eax
-    fprintf(fpasm, "\tpush dword edx\n"); // push a pila edx resto
+    //fprintf(fpasm, "\tpush dword edx\n"); // push a pila edx resto
     fprintf(fpasm, "\tpush dword eax\n"); // push a pila eax cociente
 
 
