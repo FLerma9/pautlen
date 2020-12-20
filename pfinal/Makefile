@@ -12,10 +12,17 @@ EJEMPLOS=ejemplo1 ejemplo2 ejemplo3
 DIREJEMPLOS=ejemplos
 DIRTESTS=tests
 TESTS_ARIT:=$(shell ls tests/aritmeticas*.alf | xargs | sed 's/.alf//g' | sed 's/$(DIRTESTS)\///g')
-TESTS_INPUT=$(TESTS_ARIT)
-TESTS_NOINPUT=
+TESTS_FUNCIONES_INPUT= funciones1 funciones2
+TESTS_FUNCIONES_NO_INPUT = funciones3 funciones4
+TESTS_IF_INPUT = if3
+TESTS_IF_NO_INPUT = if1 if2
+TESTS_LOGIC:=$(shell ls tests/logicas*.alf | xargs | sed 's/.alf//g' | sed 's/$(DIRTESTS)\///g')
+TESTS_VECTOR:=$(shell ls tests/vectores*.alf | xargs | sed 's/.alf//g' | sed 's/$(DIRTESTS)\///g')
+TESTS_WHILE:=$(shell ls tests/while*.alf | xargs | sed 's/.alf//g' | sed 's/$(DIRTESTS)\///g')
+TESTS_INPUT=$(TESTS_ARIT) $(TESTS_FUNCIONES_INPUT) $(TESTS_IF_INPUT) $(TESTS_LOGIC) $(TESTS_WHILE)
+TESTS_NOINPUT=$(TESTS_FUNCIONES_NO_INPUT) $(TESTS_IF_NO_INPUT) $(TESTS_VECTOR)
 TESTS=$(TESTS_INPUT) $(TESTS_NOINPUT)
-TESTS_ARIT_PER= _1 _2 _3
+TESTS_WITH_DIR:= $(addprefix $(DIRTESTS)/,$(TESTS))
 
 RED   := $(shell tput -Txterm setaf 1)
 GREEN := $(shell tput -Txterm setaf 2)
@@ -43,20 +50,30 @@ ejemplo%_exec: ejemplo%
 
 compare_ejemplos: $(EJEMPLOS)
 
-#test: test_aritmeticas test_comparaciones test_error test_funciones test_if \
-#		test_logicas test_vectores test_while
-$(TESTS): $(MAIN)
-	./$(MAIN) $(DIRTESTS)/$@.alf $(DIRTESTS)/$@.asm
-	$(NASM) $(DIRTESTS)/$@.o $(NASMFLAGS) $(DIRTESTS)/$@.asm
-	$(CC) $(CFLAGS) -m32 -o $(DIRTESTS)/$@ $(DIRTESTS)/$@.o alfalib.o
-
 test_aritmeticas: $(TESTS_ARIT)
-	@echo $(TESTS)
-	$(foreach test, $(TESTS_ARIT),\
-		$(foreach subtest, $(shell ls "$(DIRTESTS)/$(test)"*".input" | xargs | sed 's/$(DIRTESTS)\/$(test)_//g' | sed 's/.input//g'),\
-		$(shell cat $(DIRTESTS)/$(test)_$(subtest).input | ./$(DIRTESTS)/$(test) >	$(DIRTESTS)/$(test)_$(subtest)output.test; \
-			diff -Bb $(DIRTESTS)/$(test)_$(subtest).output $(DIRTESTS)/$(test)_$(subtest)output.test))\
-		 )
+test_funciones:	$(TESTS_FUNCIONES_INPUT) $(TESTS_FUNCIONES_NO_INPUT)
+test_if: $(TESTS_IF_NO_INPUT) $(TESTS_IF_INPUT)
+test_logicas: $(TESTS_LOGIC)
+test_vectores: $(TESTS_VECTOR)
+test_while: $(TESTS_WHILE)
 
-clean:
-	rm -f lex.yy.c y.* $(MAIN) misalida* ejemplo_* $(DIRTESTS)/*.asm $(DIRTESTS)/*output.test $(DIRTESTS)/*.o
+$(TESTS_WITH_DIR): $(MAIN)
+	./$(MAIN) $@.alf $@.asm > /dev/null
+	$(NASM) $@.o $(NASMFLAGS) $@.asm > /dev/null
+	$(CC) $(CFLAGS) -m32 -o $@ $@.o alfalib.o > /dev/null
+
+$(TESTS_INPUT): %: $(DIRTESTS)/%
+	$(foreach input_n, $(shell ls "$(DIRTESTS)/$@"*".input" | xargs | sed 's/$(DIRTESTS)\/$@//g' | sed 's/.input//g'),\
+		$(shell cat $(DIRTESTS)/$@$(input_n).input | ./$(DIRTESTS)/$@ >	$(DIRTESTS)/$@$(input_n).output.test;\
+		diff -Bb $(DIRTESTS)/$@$(input_n).output $(DIRTESTS)/$@$(input_n).output.test))
+	@echo "${GREEN}$@${RESET}"
+
+$(TESTS_NOINPUT): %: $(DIRTESTS)/%
+	$(shell ./$(DIRTESTS)/$@ >	$(DIRTESTS)/$@.output.test;\
+	diff -Bb $(DIRTESTS)/$@.output $(DIRTESTS)/$@.output.test)
+	@echo "${GREEN}$@${RESET}"
+
+clean: clean_tests
+	rm -f lex.yy.c y.* $(MAIN) misalida* ejemplo_*
+clean_tests:
+	rm -f $(DIRTESTS)/*.asm $(DIRTESTS)/*output.test $(DIRTESTS)/*.o $(TESTS_WITH_DIR)
