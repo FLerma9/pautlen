@@ -13,7 +13,7 @@
     int clase_actual;
     int tamano_actual;
     int posicion_actual;
-    int numero_etiqueta=0;
+    int etiqueta_actual=0;
 
     int mismo_tipo(int tipo, int op1tipo, int op2tipo);
     void escribir_aux(informacion info);
