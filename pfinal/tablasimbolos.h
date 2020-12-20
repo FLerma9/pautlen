@@ -18,6 +18,7 @@ typedef struct informacion{
     int pos_param;
     int num_variables;
     int pos_variable;
+    int etiqueta;
 } informacion;
 
 typedef struct tabla_simbolos{

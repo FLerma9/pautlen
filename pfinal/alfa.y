@@ -38,7 +38,7 @@
 %left '*' '/' TOK_AND
 %nonassoc UMINUS
 
-%type <atrib> elemento_vector exp comparacion constante constante_logica constante_entera
+%type <atrib> elemento_vector exp comparacion constante constante_logica constante_entera if_cond if_then bucle_cond
 %start programa
 
 %%
@@ -129,13 +129,35 @@ elemento_vector :   TOK_IDENTIFICADOR '[' exp ']'{if($3.tipo != ENTERO) return e
                                                   ECHOYYPARSE(48, "<elemento_vector> ::= <TOK_IDENTIFICADOR> [ <exp> ]");}
 
 condicional     :   if_cond ')' '{' sentencias '}'
-    {ECHOYYPARSE(50, "<condicional> ::= if ( <exp> ) { <sentencias> }");}
-                |   if_then TOK_ELSE '{' sentencias '}' {}
-    {ECHOYYPARSE(51, "<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }");}
-if_cond         :   TOK_IF '(' exp {}
-if_then         :   if_cond ')' '{' sentencias '}' {}
-bucle           :   TOK_WHILE '(' exp ')' '{' sentencias '}'
-    {ECHOYYPARSE(52, "<bucle> ::= while ( <exp> ) { <sentencias> }");}
+                                  {
+                                    ifthen_fin(yyout, $1.etiqueta);
+                                    ECHOYYPARSE(50, "<condicional> ::= if ( <exp> ) { <sentencias> }");}
+                |   if_then TOK_ELSE '{' sentencias '}' {
+                                                        ifthenelse_fin(yyout, $1.etiqueta);
+                                                        }
+if_cond         :   TOK_IF '(' exp {
+                                    if($3.tipo != BOOLEAN) error_sem(cond_int, NULL);
+                                    $$.etiqueta = etiqueta_actual;
+                                    etiqueta_actual++;
+                                    ifthenelse_inicio(yyout, $3.es_direccion, $$.etiqueta);
+                                    }
+if_then         :   if_cond ')' '{' sentencias '}' {
+                                                    $$.etiqueta = $1.etiqueta;
+                                                    ifthenelse_fin_then(yyout, $$.etiqueta);
+                                                    }
+bucle           :   bucle_cond ')' '{' sentencias '}'
+                                    {
+                                      while_fin(yyout, $1.etiqueta);
+                                      ECHOYYPARSE(52, "<bucle> ::= while ( <exp> ) { <sentencias> }");}
+bucle_cond      :   TOK_WHILE {
+                               $<atrib>$.etiqueta = etiqueta_actual;
+                               etiqueta_actual++;
+                               while_inicio(yyout, $<atrib>$.etiqueta);}[etiq]
+                    '(' exp {
+                              if($4.tipo != BOOLEAN) error_sem(bucl_cond_int, NULL);
+                              while_exp_pila(yyout, $4.es_direccion, $<atrib>$.etiqueta);
+                              $$.etiqueta = $<atrib>$.etiqueta;
+                              }
 
 lectura         :   TOK_SCANF TOK_IDENTIFICADOR {
                                                 informacion *i = buscar_identificador(tsymb, $2.identificador);
@@ -207,7 +229,7 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                                               $$.tipo = BOOLEAN;
                                               $$.es_direccion = 0;
                                               no(yyout, $2.es_direccion, etiqueta_actual);
-                                              etiqueta_actual+=1; // TODO CHECK
+                                              etiqueta_actual++; // TODO CHECK
                                             }
                                             ECHOYYPARSE(79, "<exp> ::= ! <exp>");}
                 |   TOK_IDENTIFICADOR   {
@@ -343,16 +365,16 @@ void ejecutar_operacion(int op, informacion info1, informacion info2){
   else if(op == OR)
     o(yyout, info1.es_direccion, info2.es_direccion);
   else if(op == IGUAL)
-    igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+    igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
   else if(op == DISTINTO)
-    distinto(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+    distinto(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
   else if(op == MENORIGUAL)
-    menor_igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+    menor_igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
   else if(op == MAYORIGUAL)
-    mayor_igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+    mayor_igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
   else if(op == MENOR)
-    menor(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+    menor(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
   else if(op == MAYOR)
-    mayor(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+    mayor(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
 
 }
