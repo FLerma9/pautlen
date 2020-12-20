@@ -229,7 +229,7 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                                               $$.tipo = BOOLEAN;
                                               $$.es_direccion = 0;
                                               no(yyout, $2.es_direccion, etiqueta_actual);
-                                              etiqueta_actual++;; // TODO CHECK
+                                              etiqueta_actual++; // TODO CHECK
                                             }
                                             ECHOYYPARSE(79, "<exp> ::= ! <exp>");}
                 |   TOK_IDENTIFICADOR   {
@@ -365,16 +365,16 @@ void ejecutar_operacion(int op, informacion info1, informacion info2){
   else if(op == OR)
     o(yyout, info1.es_direccion, info2.es_direccion);
   else if(op == IGUAL)
-    igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+    igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
   else if(op == DISTINTO)
-    distinto(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+    distinto(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
   else if(op == MENORIGUAL)
-    menor_igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+    menor_igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
   else if(op == MAYORIGUAL)
-    mayor_igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+    mayor_igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
   else if(op == MENOR)
-    menor(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+    menor(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
   else if(op == MAYOR)
-    mayor(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+    mayor(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
 
 }
