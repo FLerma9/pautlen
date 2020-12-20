@@ -10,7 +10,7 @@ typedef struct informacion{
     char identificador[MAX_IDENTIFIER+1];
     int categoria;
     int tipo;
-    int escalar_o_vector;
+    int clase;
     //int size; // pag 67, como hacer compr de tamanio en temp ej?¿
     int valor_entero;
     int es_direccion;
@@ -43,7 +43,7 @@ informacion *search_tabla_local(tabla_simbolos *tabla, char *key);
 
 /* Crea una variable de informacion con los valores pasados */
 informacion *crear_informacion(const char *identificador, int categoria,
-    int tipo, int escalar_o_vector, int valor_entero, int num_param, int pos_param,
+    int tipo, int clase, int valor_entero, int num_param, int pos_param,
     int num_variables, int pos_variable);
 
 
