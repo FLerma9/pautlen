@@ -44,10 +44,6 @@ int error_sem(s_error error, char *identificador){
     fprintf(stderr,
       "****Error semantico en lin %d: Asignacion incompatible.\n",
         yylineno);
-  else if (error == incomp_assgn)
-    fprintf(stderr,
-      "****Error semantico en lin %d: Asignacion incompatible.\n",
-        yylineno);
   else if (error == size_v)
     fprintf(stderr,
       "****Error semantico en lin %d: El tamanyo del vector %s excede los limites permitidos (1,64).\n",

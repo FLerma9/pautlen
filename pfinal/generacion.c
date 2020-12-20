@@ -366,6 +366,13 @@ void asignarDestinoEnPila(FILE* fpasm, int es_variable){
     fprintf(fpasm, "\tmov dword [ebx], eax\n");
 }
 
+void asignarElementoVector(FILE* fpasm, int es_variable){
+    if(fpasm == NULL) return;
+    aux_pop_op(fpasm, es_variable, 1);
+    fprintf(fpasm, "\tpop dword ebx\n");
+    fprintf(fpasm, "\tmov dword [ebx], eax\n");
+}
+
 void operandoEnPilaAArgumento(FILE * fpasm, int es_variable){
     if(fpasm == NULL) return;
     if(es_variable){
