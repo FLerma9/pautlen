@@ -72,6 +72,14 @@ int error_sem(s_error error, char *identificador){
     fprintf(stderr,
       "****Error semantico en lin %d: Variable local de tipo no escalar.\n",
         yylineno);
+  else if (error == func_as_var)
+    fprintf(stderr,
+      "****Error semantico en lin %d: Función %s usada como variable.\n",
+        yylineno, identificador);
+  else if (error == noindex_v)
+    fprintf(stderr,
+      "****Error semantico en lin %d: Vector %s no indexado.\n",
+        yylineno, identificador);
   return 1;
 }
 

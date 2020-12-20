@@ -121,7 +121,7 @@ asignacion      :   TOK_IDENTIFICADOR '=' exp   {informacion *i = buscar_identif
 elemento_vector :   TOK_IDENTIFICADOR '[' exp ']'{if($3.tipo != ENTERO) return error_sem(index_noint, NULL);
                                                   informacion *i = buscar_identificador(tsymb, $1.identificador);
                                                   if (i == NULL) return error_sem(undec_acc, $1.identificador);
-                                                  else if (i->categoria == FUNCION) return 1;
+                                                  else if (i->categoria == FUNCION) return error_sem(func_as_var, $1.identificador);
                                                   else if (i->clase != VECTOR) return error_sem(index_in_nov, $1.identificador);
                                                   $$.tipo = i->tipo;
                                                   $$.es_direccion = 1;
@@ -162,8 +162,8 @@ bucle_cond      :   TOK_WHILE {
 lectura         :   TOK_SCANF TOK_IDENTIFICADOR {
                                                 informacion *i = buscar_identificador(tsymb, $2.identificador);
                                                 if (i == NULL) return error_sem(undec_acc, $2.identificador);
-                                                else if (i->categoria == FUNCION) return 1;
-                                                else if (i->clase == VECTOR) return 1;
+                                                else if (i->categoria == FUNCION) return error_sem(func_as_var, $2.identificador);
+                                                else if (i->clase == VECTOR) return error_sem(noindex_v, $2.identificador);
                                                 leer(yyout, i->identificador, i->tipo);
                                                 ECHOYYPARSE(54, "<lectura> ::= scanf <TOK_IDENTIFICADOR>");}
 escritura       :   TOK_PRINTF exp  {escribir(yyout, $2.es_direccion, $2.tipo);
@@ -235,8 +235,8 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                 |   TOK_IDENTIFICADOR   {
                                         informacion *i = buscar_identificador(tsymb, $1.identificador);
                                         if (i == NULL) return error_sem(undec_acc, $1.identificador);
-                                        else if (i->categoria == FUNCION) return error_sem(inc_num_pam, $1.identificador);
-                                        else if (i->clase == VECTOR) return 1;
+                                        else if (i->categoria == FUNCION) return error_sem(func_as_var, $1.identificador);
+                                        else if (i->clase == VECTOR) return error_sem(noindex_v, $1.identificador);
                                         strcpy($$.identificador, $1.identificador);
                                         $$.tipo = i->tipo;
                                         $$.es_direccion = 1;
