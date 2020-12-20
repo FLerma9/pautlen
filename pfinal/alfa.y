@@ -68,9 +68,9 @@ tipo            :   TOK_INT         {tipo_actual=INT ;ECHOYYPARSE(10, "<tipo> ::
 
 clase_vector    :   TOK_ARRAY tipo '[' TOK_CONSTANTE_ENTERA ']'
                     {
-                        tamano_actual = $4.valor_entero;
-                        if(tamano_actual>MAX_VECTOR)
+                        if($4.valor_entero < 0 || $4.valor_entero>MAX_VECTOR)
                             return error_sem(size_v, NULL);
+                        tamano_actual = $4.valor_entero;
                     }
 
 identificadores :   identificador
@@ -166,8 +166,7 @@ lectura         :   TOK_SCANF TOK_IDENTIFICADOR {
                                                 else if (i->clase == VECTOR) return 1;
                                                 leer(yyout, i->identificador, i->tipo);
                                                 ECHOYYPARSE(54, "<lectura> ::= scanf <TOK_IDENTIFICADOR>");}
-escritura       :   TOK_PRINTF exp  {escribir_aux($2);
-                                    escribir(yyout, $2.es_direccion, $2.tipo);
+escritura       :   TOK_PRINTF exp  {escribir(yyout, $2.es_direccion, $2.tipo);
                                     ECHOYYPARSE(56, "<escritura> ::= printf <exp>");}
 retorno_funcion :   TOK_RETURN exp          {ECHOYYPARSE(61, "<retorno_funcion> ::= return <exp>");}
 
@@ -266,12 +265,54 @@ resto_lista_expresiones :   ',' exp resto_lista_expresiones
                         |
     {ECHOYYPARSE(92, "<resto_lista_expresiones> ::= ");}
 
-comparacion     :   exp TOK_IGUAL exp       {/*$$ = $1 == $3;*/ ECHOYYPARSE(93, "<exp> ::= <exp> == <exp>");}
-                |   exp TOK_DISTINTO exp    {/*$$ = $1 != $3;*/ ECHOYYPARSE(94, "<exp> ::= <exp> != <exp>");}
-                |   exp TOK_MENORIGUAL exp  {/*$$ = $1 <= $3;*/ ECHOYYPARSE(95, "<exp> ::= <exp> <= <exp>");}
-                |   exp TOK_MAYORIGUAL exp  {/*$$ = $1 >= $3;*/ ECHOYYPARSE(96, "<exp> ::= <exp> >= <exp>");}
-                |   exp TOK_MENOR exp       {/*$$ = $1 < $3;*/ ECHOYYPARSE(97, "<exp> ::= <exp> < <exp>");}
-                |   exp TOK_MAYOR exp       {/*$$ = $1 > $3;*/ ECHOYYPARSE(98, "<exp> ::= <exp> > <exp>");}
+comparacion     :   exp TOK_IGUAL exp       {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return error_sem(comp_bool, NULL);
+                                            else{
+                                              $$.tipo = BOOLEAN;
+                                              $$.es_direccion = 0;
+                                              ejecutar_operacion(IGUAL, $1, $3);
+                                              ECHOYYPARSE(93, "<exp> ::= <exp> == <exp>");
+                                              }
+                                            }
+                |   exp TOK_DISTINTO exp    {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return error_sem(comp_bool, NULL);
+                                            else{
+                                              $$.tipo = BOOLEAN;
+                                              $$.es_direccion = 0;
+                                              ejecutar_operacion(DISTINTO, $1, $3);
+                                              ECHOYYPARSE(94, "<exp> ::= <exp> != <exp>");
+                                              }
+                                            }
+                |   exp TOK_MENORIGUAL exp  {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return error_sem(comp_bool, NULL);
+                                            else{
+                                              $$.tipo = BOOLEAN;
+                                              $$.es_direccion = 0;
+                                              ejecutar_operacion(MENORIGUAL, $1, $3);
+                                              ECHOYYPARSE(95, "<exp> ::= <exp> <= <exp>");
+                                              }
+                                            }
+                |   exp TOK_MAYORIGUAL exp  {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return error_sem(comp_bool, NULL);
+                                            else{
+                                              $$.tipo = BOOLEAN;
+                                              $$.es_direccion = 0;
+                                              ejecutar_operacion(MAYORIGUAL, $1, $3);
+                                              ECHOYYPARSE(96, "<exp> ::= <exp> >= <exp>");
+                                              }
+                                            }
+                |   exp TOK_MENOR exp       {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return error_sem(comp_bool, NULL);
+                                            else{
+                                              $$.tipo = BOOLEAN;
+                                              $$.es_direccion = 0;
+                                              ejecutar_operacion(MENOR, $1, $3);
+                                              ECHOYYPARSE(97, "<exp> ::= <exp> < <exp>");
+                                              }
+                                            }
+                |   exp TOK_MAYOR exp       {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return error_sem(comp_bool, NULL);
+                                            else{
+                                              $$.tipo = BOOLEAN;
+                                              $$.es_direccion = 0;
+                                              ejecutar_operacion(MAYOR, $1, $3);
+                                              ECHOYYPARSE(98, "<exp> ::= <exp> > <exp>");
+                                              }
+                                            }
 
 constante       :   constante_logica {$$.tipo = BOOLEAN; $$.es_direccion = 0; $$.valor_entero = $1.valor_entero; /* TODO CHECK*/ ECHOYYPARSE(99, "<constante> ::= <constante_logica>");}
                 |   constante_entera {$$.tipo = INT; $$.es_direccion = 0; $$.valor_entero = $1.valor_entero; ECHOYYPARSE(100, "<constante> ::= <constante_entera>");}
@@ -323,4 +364,17 @@ void ejecutar_operacion(int op, informacion info1, informacion info2){
     y(yyout, info1.es_direccion, info2.es_direccion);
   else if(op == OR)
     o(yyout, info1.es_direccion, info2.es_direccion);
+  else if(op == IGUAL)
+    igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+  else if(op == DISTINTO)
+    distinto(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+  else if(op == MENORIGUAL)
+    menor_igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+  else if(op == MAYORIGUAL)
+    mayor_igual(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+  else if(op == MENOR)
+    menor(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+  else if(op == MAYOR)
+    mayor(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual);
+
 }
