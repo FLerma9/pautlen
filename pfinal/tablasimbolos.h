@@ -32,8 +32,7 @@ void destroy_tabla_simbolos(tabla_simbolos *tabla);
 int iniciar_ambito_global(tabla_simbolos *tabla);
 void cerrar_ambito_global(tabla_simbolos *tabla);
 
-int iniciar_ambito_local(tabla_simbolos *tabla, char *key, informacion *info);
-void cerrar_ambito_local(tabla_simbolos *tabla);
+
 
 int add_tabla_global(tabla_simbolos *tabla, char *key, informacion *info);
 informacion *search_tabla_global(tabla_simbolos *tabla, char *key);
@@ -46,6 +45,9 @@ informacion *search_tabla_local(tabla_simbolos *tabla, char *key);
 informacion *crear_informacion(const char *identificador, int categoria,
     int tipo, int clase, int tamano, int valor_entero, int num_param, int pos_param,
     int num_variables, int pos_variable);
+
+int iniciar_ambito_local(tabla_simbolos *tabla, char *key, informacion *info);
+void cerrar_ambito_local(tabla_simbolos *tabla);
 
 
 /* Inserta una variable en la tabla */
