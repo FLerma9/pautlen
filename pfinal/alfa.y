@@ -25,7 +25,10 @@
     int mismo_tipo(int tipo, int op1tipo, int op2tipo);
     void escribir_aux(informacion info);
     void ejecutar_operacion(int op, informacion info1, informacion info2);
+
+    int yyerror(char *s);
     int error_sem(s_error error, char *identificador);
+    int error_unknown();
 %}
 %union
 {
@@ -46,7 +49,8 @@
 %left '*' '/' TOK_AND
 %nonassoc UMINUS
 
-%type <atrib> elemento_vector exp comparacion constante constante_logica constante_entera if_cond if_then bucle_cond fn_name fn_declaration idf_llamada_funcion
+%type <atrib> elemento_vector exp comparacion constante constante_logica constante_entera
+%type <atrib> if_cond if_then bucle_cond fn_name fn_declaration idf_llamada_funcion
 %start programa
 
 %%
@@ -55,21 +59,20 @@ programa        :  {tsymb = create_tabla_simbolos();}
     declaraciones  {escribir_subseccion_data(yyout); escribir_segmento_codigo(yyout);clase_actual=-1;tipo_actual=-1;}
     funciones {escribir_inicio_main(yyout);}
     sentencias '}' {escribir_fin(yyout);destroy_tabla_simbolos(tsymb);}
-    {}
+
 
 declaraciones   :   declaracion
-    {}
+
                 |   declaracion declaraciones
-    {}
+
 declaracion     :   clase identificadores ';'
-    {}
+
 clase           :   clase_escalar   {clase_actual=ESCALAR; }
                 |   clase_vector    {clase_actual=VECTOR; }
 
 clase_escalar   :   tipo
                     {
                         tamano_actual = 1;
-
                     }
 tipo            :   TOK_INT         {tipo_actual=INT ;}
                 |   TOK_BOOLEAN     {tipo_actual=BOOLEAN; }
@@ -80,12 +83,12 @@ clase_vector    :   TOK_ARRAY tipo '[' TOK_CONSTANTE_ENTERA ']'
                     }
 
 identificadores :   identificador
-    {}
-                |   identificador ',' identificadores
-    {}
 
-funciones       :   funcion funciones   {}
-                |                       {}
+                |   identificador ',' identificadores
+
+
+funciones       :   funcion funciones
+                |
 
 
 funcion         :   fn_declaration sentencias '}'
@@ -135,34 +138,34 @@ fn_name         :   TOK_FUNCTION tipo TOK_IDENTIFICADOR
 
 
 parametros_funcion  :   parametro_funcion resto_parametros_funcion
-    {}
+
                     |
-    {}
+
 
 resto_parametros_funcion    :   ';' parametro_funcion resto_parametros_funcion
-    {}
+
                             |
-    {}
+
 
 parametro_funcion   :   tipo idpf
-    {}
+
 
 declaraciones_funcion       :   declaraciones
-    {}
+
                             |
-    {}
 
-sentencias      :   sentencia               {}
-                |   sentencia sentencias    {}
-sentencia       :   sentencia_simple ';'    {}
-                |   bloque                  {}
-sentencia_simple    :   asignacion          {}
-                    |   lectura             {}
-                    |   escritura           {}
-                    |   retorno_funcion     {}
 
-bloque          :   condicional             {}
-                |   bucle                   {}
+sentencias      :   sentencia
+                |   sentencia sentencias
+sentencia       :   sentencia_simple ';'
+                |   bloque
+sentencia_simple    :   asignacion
+                    |   lectura
+                    |   escritura
+                    |   retorno_funcion
+
+bloque          :   condicional
+                |   bucle
 
 asignacion      :   TOK_IDENTIFICADOR '=' exp {
                                                 informacion *i;
@@ -346,7 +349,7 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                                               $$.tipo = BOOLEAN;
                                               $$.es_direccion = 0;
                                               no(yyout, $2.es_direccion, etiqueta_actual);
-                                              etiqueta_actual++; // TODO CHECK
+                                              etiqueta_actual++;
                                             }
                                             }
                 |   TOK_IDENTIFICADOR   {
@@ -388,11 +391,8 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                 |   constante           {$$.tipo = $1.tipo; $$.es_direccion = 0; $$.valor_entero = $1.valor_entero;
                                         escribir_aux($$);
                                         }
-                |   '(' exp ')'         {$$.tipo = $2.tipo; $$.es_direccion = $2.es_direccion; $$.valor_entero = $2.valor_entero;
-                                        }
-                |   '(' comparacion ')' {$$.tipo = BOOLEAN; $$.es_direccion = 0; $$.valor_entero = $2.valor_entero;
-                                        //escribir_aux($$);
-                                        }
+                |   '(' exp ')'         {$$.tipo = $2.tipo; $$.es_direccion = $2.es_direccion; $$.valor_entero = $2.valor_entero;}
+                |   '(' comparacion ')' {$$.tipo = BOOLEAN; $$.es_direccion = 0; $$.valor_entero = $2.valor_entero;}
                 |   elemento_vector     {$$.tipo = $1.tipo; $$.es_direccion = 1;
                                         }
                 |   idf_llamada_funcion '(' lista_expresiones ')' {
@@ -415,16 +415,12 @@ idf_llamada_funcion     :   TOK_IDENTIFICADOR {
 	    strcpy($$.identificador, $1.identificador);
 }
 
-lista_expresiones       :   exp {operandoEnPilaAArgumento(yyout,$1.es_direccion);} resto_lista_expresiones
-    { num_parametros_llamada_actual++;
-      }
+lista_expresiones       :   exp {operandoEnPilaAArgumento(yyout,$1.es_direccion); num_parametros_llamada_actual++;} resto_lista_expresiones
                         |
-    {}
-resto_lista_expresiones :   ',' exp {operandoEnPilaAArgumento(yyout,$2.es_direccion);} resto_lista_expresiones
-    { num_parametros_llamada_actual++;
-      }
+
+resto_lista_expresiones :   ',' exp {operandoEnPilaAArgumento(yyout,$2.es_direccion); num_parametros_llamada_actual++;} resto_lista_expresiones
                         |
-    {}
+
 
 comparacion     :   exp TOK_IGUAL exp       {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return error_sem(comp_bool, NULL);
                                             else{
@@ -481,9 +477,7 @@ constante       :   constante_logica {$$.tipo = BOOLEAN; $$.es_direccion = 0; $$
 constante_logica    :   TOK_TRUE {$$.valor_entero = $1.valor_entero; }
                     |   TOK_FALSE {$$.valor_entero = $1.valor_entero; }
 
-constante_entera :  TOK_CONSTANTE_ENTERA    {
-                                             $$.valor_entero = $1.valor_entero;
-                                             }
+constante_entera :  TOK_CONSTANTE_ENTERA    {$$.valor_entero = $1.valor_entero;}
 idpf            :   TOK_IDENTIFICADOR
                     {
                         if(clase_actual==VECTOR) return error_sem(param_nosc, NULL);
@@ -497,8 +491,6 @@ idpf            :   TOK_IDENTIFICADOR
                         pos_parametro_actual++;
                         num_parametros_actual++;
                     }
-
-
 
 identificador   :   TOK_IDENTIFICADOR
                     {
@@ -571,6 +563,16 @@ void ejecutar_operacion(int op, informacion info1, informacion info2){
     menor(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
   else if(op == MAYOR)
     mayor(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
+}
+
+int yyerror(char *s){
+    return fprintf(stderr, "****Error sintactico en [lin %d, col %d]\n", yylineno, column);
+}
+
+int error_unknown(){
+  fprintf(stderr, "****Error interno del programa\n");
+  destroy_tabla_simbolos(tsymb);
+  return 1;
 }
 
 int error_sem(s_error error, char *identificador){

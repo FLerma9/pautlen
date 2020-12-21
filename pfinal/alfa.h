@@ -1,7 +1,7 @@
 #ifndef ALFA_H
 #define ALFA_H
 
-#include "tablasimbolos.h" //cambiar a tener informacion en alfa.h o en un comun
+#include "tablasimbolos.h" 
 #include "generacion.h"
 
 #define ERROR 20
@@ -37,7 +37,5 @@ extern int yylineno;
 extern int column;
 extern FILE* yyin;
 extern FILE* yyout;
-int yyerror(char *s);
-int error_sem(s_error error, char *identificador);
-int error_unknown();
+
 #endif

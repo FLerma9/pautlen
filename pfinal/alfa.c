@@ -2,16 +2,6 @@
 #include "alfa.h"
 #include "y.tab.h"
 
-
-int yyerror(char *s){
-    return fprintf(stderr, "****Error sintactico en [lin %d, col %d]\n", yylineno, column);
-}
-
-int error_unknown(){
-  fprintf(stderr, "****Error interno del programa\n");
-  return 1;
-}
-
 int main(int argc, char *argv[]){
     if(argc!=3){
       fprintf(stderr, "Numero de argumentos incorrecto, introducir ./alfa ficheroentrada.txt ficherosalida.txt\n");
@@ -28,5 +18,4 @@ int main(int argc, char *argv[]){
       return -1;
     }
     return yyparse();
-
 }
