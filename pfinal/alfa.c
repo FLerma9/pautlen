@@ -62,7 +62,11 @@ int error_sem(s_error error, char *identificador){
         yylineno, identificador);
   else if (error == ret_nof)
     fprintf(stderr,
-      "****Error semantico en lin %d: Sentencia de retorno fuera del cuerpo de una función.\n",
+      "****Error semantico en lin %d: Sentencia de retorno fuera del cuerpo de una funcion.\n",
+        yylineno);
+  else if (error == ret_wrongtype)
+    fprintf(stderr,
+      "****Error semantico en lin %d: El tipo del return no coincide con el declarado en la funcion.\n",
         yylineno);
   else if (error == callf_param)
     fprintf(stderr,
@@ -72,6 +76,14 @@ int error_sem(s_error error, char *identificador){
     fprintf(stderr,
       "****Error semantico en lin %d: Variable local de tipo no escalar.\n",
         yylineno);
+  else if (error == param_nosc)
+    fprintf(stderr,
+      "****Error semantico en lin %d: Parametro de tipo no escalar.\n",
+        yylineno);
+  else if (error == return_nosc)
+    fprintf(stderr,
+      "****Error semantico en lin %d: Retorno de tipo no escalar.\n",
+        yylineno);
   else if (error == func_as_var)
     fprintf(stderr,
       "****Error semantico en lin %d: Función %s usada como variable.\n",
@@ -80,6 +92,18 @@ int error_sem(s_error error, char *identificador){
     fprintf(stderr,
       "****Error semantico en lin %d: Vector %s no indexado.\n",
         yylineno, identificador);
+  else if (error == funcInsideFunc)
+    fprintf(stderr,
+      "****Error semantico en lin %d: Funcion %s declarada dentro de otra función.\n",
+        yylineno, identificador);
+  else if (error == errAmbLoc)
+    fprintf(stderr,
+      "****Error en lin %d: Error creando el ámbito local de la función %s.\n\n",
+        yylineno, identificador);
+  else if (error == funcIsNotFunc)
+    fprintf(stderr,
+      "****Error en lin %d: el identificador de la llamada a la funcion no es de tipo funcion.\n",
+        yylineno);
   return 1;
 }
 

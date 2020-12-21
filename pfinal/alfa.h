@@ -14,6 +14,9 @@
 #define INT 1
 #define BOOLEAN 2
 
+#define FALSE 0
+#define TRUE 1
+
 #define ESCALAR 1
 #define VECTOR 2
 
@@ -26,7 +29,8 @@ typedef enum s_error{
     dec_dup, undec_acc, arit_bool, log_int, comp_bool, cond_int,
     bucl_cond_int, inc_num_pam, incomp_assgn, size_v, index_in_nov,
     index_noint, f_noret, ret_nof, callf_param, local_nosc, func_as_var,
-    noindex_v
+    noindex_v, funcInsideFunc, errAmbLoc, param_nosc, return_nosc, ret_wrongtype,
+    funcIsNotFunc
 }s_error;
 
 extern int yylineno;

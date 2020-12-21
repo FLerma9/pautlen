@@ -14,7 +14,16 @@
     int tamano_actual;
     int posicion_actual;
     int etiqueta_actual=0;
-
+    int local=FALSE;
+    int insideFunc=FALSE;
+    int salir = FALSE;
+    int num_variables_locales_actual;
+    int pos_variable_local_actual;
+    int num_parametros_actual;
+    int pos_parametro_actual;
+    char nombreFuncionActual[200];
+    int en_explit = 0;
+    int num_parametros_llamada_actual = 0;
     int mismo_tipo(int tipo, int op1tipo, int op2tipo);
     void escribir_aux(informacion info);
     void ejecutar_operacion(int op, informacion info1, informacion info2);
@@ -38,7 +47,7 @@
 %left '*' '/' TOK_AND
 %nonassoc UMINUS
 
-%type <atrib> elemento_vector exp comparacion constante constante_logica constante_entera if_cond if_then bucle_cond
+%type <atrib> elemento_vector exp comparacion constante constante_logica constante_entera if_cond if_then bucle_cond fn_name fn_declaration idf_llamada_funcion
 %start programa
 
 %%
@@ -80,18 +89,70 @@ identificadores :   identificador
 
 funciones       :   funcion funciones   {ECHOYYPARSE(20, "<funciones> ::= <funcion> <funciones>");}
                 |                       {ECHOYYPARSE(21, "<funciones> ::= ");}
-funcion         :   TOK_FUNCTION tipo identificador
-                    '(' parametros_funcion ')' '{' declaraciones_funcion sentencias '}'
-    {ECHOYYPARSE(22, "<funcion> ::= function <tipo> <identificador> ( <parametro_funcion> ) { <declaraciones_funcion> <sentencias> }");}
+
+
+funcion         :   fn_declaration sentencias '}'
+    {
+      cerrar_ambito_local(tsymb);
+      local = FALSE;
+      informacion *inf = buscar_identificador(tsymb, $1.identificador);
+      if (inf == NULL) return error_sem(undec_acc, $1.identificador);
+      inf->num_param = num_parametros_actual;
+      inf->num_variables = num_variables_locales_actual;
+      if(salir==FALSE) return error_sem(f_noret, $1.identificador);
+      salir = FALSE;
+      insideFunc = FALSE;
+    }
+
+fn_declaration  :   fn_name '(' parametros_funcion ')' '{' declaraciones_funcion
+    {
+      informacion *inf = buscar_identificador(tsymb, $1.identificador);
+      if (inf == NULL) return error_sem(undec_acc, $1.identificador);
+      inf->num_param = num_parametros_actual;
+      inf->num_variables = num_variables_locales_actual;
+      strcpy($$.identificador, $1.identificador);
+      declararFuncion(yyout, $1.identificador, num_variables_locales_actual);
+      for(int i=0; i<num_parametros_actual; i++)
+        escribirParametro(yyout, i, num_parametros_actual);
+      for(int i=0; i<num_variables_locales_actual; i++)
+        escribirVariableLocal(yyout, i);
+      insideFunc = TRUE;
+    }
+
+fn_name         :   TOK_FUNCTION tipo TOK_IDENTIFICADOR
+    {
+      if(tipo_actual==VECTOR) return error_sem(return_nosc, NULL);
+      if(local==TRUE) return error_sem(funcInsideFunc, $3.identificador);
+      informacion *inf = crear_informacion($3.identificador, FUNCION,
+          tipo_actual, clase_actual, tamano_actual, 0, 0, 0, 0, 0);
+      if(inf == NULL) return error_unknown();
+      if(iniciar_ambito_local(tsymb, $3.identificador, inf) == ERR)
+          return error_sem(errAmbLoc, $3.identificador);
+      num_variables_locales_actual = 0;
+      pos_variable_local_actual = 1;
+      num_parametros_actual = 0;
+      pos_parametro_actual = 0;
+      local = TRUE;
+      strcpy($$.identificador, $3.identificador);
+      strcpy(nombreFuncionActual, $3.identificador);
+    }
+
+
+
+
 parametros_funcion  :   parametro_funcion resto_parametros_funcion
     {ECHOYYPARSE(23, "<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>");}
                     |
     {ECHOYYPARSE(24, "<parametros_funcion> ::= ");}
+
 resto_parametros_funcion    :   ';' parametro_funcion resto_parametros_funcion
     {ECHOYYPARSE(25, "<resto_parametros_funcion> ::= ; <parametro_funcion> <resto_parametros_funcion>");}
                             |
     {ECHOYYPARSE(26, "<resto_parametros_funcion> ::= ");}
-parametro_funcion   :   tipo identificador  {ECHOYYPARSE(27, "<parametro_funcion> ::= <tipo> <identificador>");}
+
+parametro_funcion   :   tipo idpf
+    {ECHOYYPARSE(27, "<parametro_funcion> ::= <tipo> <identificador>");}
+
 declaraciones_funcion       :   declaraciones
     {ECHOYYPARSE(28, "<declaraciones_funcion> ::= <identificador> <identificador>");}
                             |
@@ -168,7 +229,15 @@ lectura         :   TOK_SCANF TOK_IDENTIFICADOR {
                                                 ECHOYYPARSE(54, "<lectura> ::= scanf <TOK_IDENTIFICADOR>");}
 escritura       :   TOK_PRINTF exp  {escribir(yyout, $2.es_direccion, $2.tipo);
                                     ECHOYYPARSE(56, "<escritura> ::= printf <exp>");}
-retorno_funcion :   TOK_RETURN exp          {ECHOYYPARSE(61, "<retorno_funcion> ::= return <exp>");}
+retorno_funcion :   TOK_RETURN exp
+                    {
+                      if(insideFunc==FALSE) return error_sem(ret_nof, NULL);
+                      informacion *i =buscar_identificador(tsymb, nombreFuncionActual);
+                      if (i == NULL) return error_sem(undec_acc, nombreFuncionActual);
+                      if(i->tipo!=$2.tipo) return error_sem(ret_wrongtype, NULL);
+                      retornarFuncion(yyout, $2.es_direccion);
+                      salir = TRUE;
+                      ECHOYYPARSE(61, "<retorno_funcion> ::= return <exp>");}
 
 exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return error_sem(arit_bool, NULL);
                                 else {
@@ -239,8 +308,13 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                                         else if (i->clase == VECTOR) return error_sem(noindex_v, $1.identificador);
                                         strcpy($$.identificador, $1.identificador);
                                         $$.tipo = i->tipo;
-                                        $$.es_direccion = 1;
-                                        escribir_aux($$);
+                                        if(local==TRUE){
+
+                                        }
+                                        else{
+                                          $$.es_direccion = 1;
+                                          escribir_aux($$);
+                                        }
                                         ECHOYYPARSE(80, "<exp> ::= <TOK_IDENTIFICADOR>");
                                         }
                 |   constante           {$$.tipo = $1.tipo; $$.es_direccion = 0; $$.valor_entero = $1.valor_entero;
@@ -253,15 +327,36 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                                         ECHOYYPARSE(83, "<exp> ::= ( <comparacion> )");}
                 |   elemento_vector     {$$.tipo = $1.tipo; $$.es_direccion = 1;
                                         ECHOYYPARSE(85, "<exp> ::= <elemento_vector>");}
-                |   TOK_IDENTIFICADOR '(' lista_expresiones ')'
-    {ECHOYYPARSE(88, "<exp> ::= <TOK_IDENTIFICADOR> ( <lista_expresiones> )");}
+                |   idf_llamada_funcion '(' lista_expresiones ')' {
+                                        informacion *inf = buscar_identificador(tsymb, $1.identificador);
+                                        if(inf == NULL) return error_sem(undec_acc, $1.identificador);
+                                        if(inf->num_param!=num_parametros_llamada_actual) return error_sem(inc_num_pam, $1.identificador);
+                                        en_explit = 0;
+                                        $$.tipo = inf->tipo;
+                                        $$.es_direccion = 0;
+                                        llamarFuncion(yyout,$1.identificador,num_parametros_llamada_actual);
+                                        ECHOYYPARSE(88, "<exp> ::= <idf_llamada_funcion> ( <lista_expresiones> )");}
+
+idf_llamada_funcion     :   TOK_IDENTIFICADOR {
+      informacion *i = buscar_identificador(tsymb, $1.identificador);
+      if(i == NULL) return error_sem(undec_acc, $1.identificador);
+      if(i->categoria!=FUNCION) return error_sem(funcIsNotFunc, $1.identificador);
+      if(en_explit==1) return error_sem(callf_param, $1.identificador);
+      en_explit = 1;
+      num_parametros_llamada_actual=0;
+	    strcpy($$.identificador, $1.identificador);
+}
 
 lista_expresiones       :   exp resto_lista_expresiones
-    {ECHOYYPARSE(89, "<lista_expresiones> ::= <exp> <resto_lista_expresiones>");}
+    { operandoEnPilaAArgumento(yyout,$1.es_direccion);
+      num_parametros_llamada_actual++;
+      ECHOYYPARSE(89, "<lista_expresiones> ::= <exp> <resto_lista_expresiones>");}
                         |
     {ECHOYYPARSE(90, "<lista_expresiones> ::= ");}
 resto_lista_expresiones :   ',' exp resto_lista_expresiones
-    {ECHOYYPARSE(91, "<lista_expresiones> ::= <exp> <resto_lista_expresiones>");}
+    { operandoEnPilaAArgumento(yyout,$2.es_direccion);
+      num_parametros_llamada_actual++;
+      ECHOYYPARSE(91, "<lista_expresiones> ::= <exp> <resto_lista_expresiones>");}
                         |
     {ECHOYYPARSE(92, "<resto_lista_expresiones> ::= ");}
 
@@ -323,15 +418,40 @@ constante_logica    :   TOK_TRUE {$$.valor_entero = $1.valor_entero; ECHOYYPARSE
 constante_entera :  TOK_CONSTANTE_ENTERA    {
                                              $$.valor_entero = $1.valor_entero;
                                              ECHOYYPARSE(104, "<constante_entera> ::= numero");}
+idpf            :   TOK_IDENTIFICADOR
+                    {
+                        if(clase_actual==VECTOR) return error_sem(param_nosc, NULL);
+                        informacion *inf = crear_informacion($1.identificador, PARAMETRO,
+                            tipo_actual, clase_actual, tamano_actual, 0, 0, pos_parametro_actual, 0, 0);
+                        if(inf == NULL) return error_unknown();
+                        if(insertar_variable(tsymb, $1.identificador, inf) == ERR)
+                            return error_sem(dec_dup, $1.identificador);
+                        pos_parametro_actual++;
+                        num_parametros_actual++;
+                    }
+
+
 
 identificador   :   TOK_IDENTIFICADOR
                     {
-                        informacion *inf = crear_informacion($1.identificador, categoria_actual,
-                            tipo_actual, clase_actual, tamano_actual, 0, 0, 0, 0, 0);
-                        if(inf == NULL) return error_unknown();
-                        if(add_tabla_global(tsymb, $1.identificador, inf) == ERR)
-                            return error_sem(dec_dup, $1.identificador);
-                        declarar_variable(yyout, $1.identificador, tipo_actual, tamano_actual);
+                        if(local==FALSE){
+                          informacion *inf = crear_informacion($1.identificador, categoria_actual,
+                              tipo_actual, clase_actual, tamano_actual, 1, 0, 0, 0, 0);
+                          if(inf == NULL) return error_unknown();
+                          if(add_tabla_global(tsymb, $1.identificador, inf) == ERR)
+                              return error_sem(dec_dup, $1.identificador);
+                          declarar_variable(yyout, $1.identificador, tipo_actual, tamano_actual);
+                        }
+                        else{
+                          informacion *inf = crear_informacion($1.identificador, VARIABLE,
+                              tipo_actual, clase_actual, tamano_actual, 0, 0, 0, 0, pos_variable_local_actual);
+                          if(inf == NULL) return error_unknown();
+                          if(tipo_actual==VECTOR) return error_sem(local_nosc, $1.identificador);
+                          if(add_tabla_local(tsymb, $1.identificador, inf) == ERR)
+                              return error_sem(dec_dup, $1.identificador);
+                          pos_variable_local_actual++;
+                          num_variables_locales_actual++;
+                        }
                         ECHOYYPARSE(108, "<identificador> ::= TOK_IDENTIFICADOR");
                     }
 
@@ -376,5 +496,4 @@ void ejecutar_operacion(int op, informacion info1, informacion info2){
     menor(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
   else if(op == MAYOR)
     mayor(yyout, info1.es_direccion, info2.es_direccion, etiqueta_actual++);
-
 }
