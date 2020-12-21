@@ -5,54 +5,77 @@
 
 tablahash * create_table(int tam){
     tablahash *tabla = NULL;
-    tabla = malloc(sizeof(tabla));
+    tabla = malloc(sizeof(tablahash));
     if(tabla == NULL){
         return NULL;
     }
     tabla->tam = tam;
     tabla->array = NULL;
-    tabla->array = calloc(tam, sizeof(elemento));
+    tabla->array = calloc(tam, sizeof(elemento *));
     if(tabla->array == NULL){
         free(tabla);
         return NULL;
-    }
-    for (int i=0; i<tam; i++){
-        tabla->array[i].value = NULL;
     }
     return tabla;
 }
 
 void destroy_table(tablahash *tabla){
+    for(int i=0; i<tabla->tam; i++){
+      elemento *actual = tabla->array[i];
+      while (NULL != actual){
+          elemento *aux;
+          aux = actual->siguiente;
+          free(actual);
+          actual = aux;
+      }
+    }
     free(tabla->array);
     free(tabla);
 }
 
 void * search_table(tablahash *tabla, char *key){
     unsigned long itemhash = hash((unsigned char *)key);
-    for(int i=0; i < tabla->tam; i++){
-        unsigned long index = (itemhash+i)%tabla->tam;
-        if(tabla->array[index].value == NULL) return NULL;
-        if(strcmp(tabla->array[index].key, key) == 0) return tabla->array[index].value;
+    unsigned long index = (itemhash)%tabla->tam;
+    if(tabla->array[index] == NULL) return NULL;
+    else{
+      elemento *actual = tabla->array[index];
+      while(actual != NULL){
+        if(strcmp(actual->key, key) == 0) return actual->value;
+        actual = actual->siguiente;
+      }
+      return NULL;
     }
-    return NULL;
 }
 
 int insert_table(tablahash *tabla, char *key, void *value){
     unsigned long itemhash = hash((unsigned char *)key);
-    for(int i=0; i < tabla->tam; i++){
-        unsigned long index = (itemhash+i)%tabla->tam;
-        if(tabla->array[index].value == NULL){
-            tabla->array[index].value = value;
-            strcpy(tabla->array[index].key, key);
-            return OK;
-        }
+    unsigned long index = (itemhash)%tabla->tam;
+    if(tabla->array[index] == NULL){
+        elemento *elem = NULL;
+        if (NULL == (elem = malloc(sizeof(elemento)))) return ERR;
+        tabla->array[index] = elem;
+        tabla->array[index]->value = value;
+        tabla->array[index]->siguiente = NULL;
+        strcpy(tabla->array[index]->key, key);
+        return OK;
+    } else{
+      elemento *elem = NULL;
+      if (NULL == (elem = malloc(sizeof(elemento)))) return ERR;
+      elemento *aux;
+      aux = tabla->array[index];
+      tabla->array[index] = elem;
+      tabla->array[index]->value = value;
+      strcpy(tabla->array[index]->key, key);
+      tabla->array[index]->siguiente = aux;
+      return OK;
     }
+
     return ERR;
 }
 
 /* Utilizamos el hash djb2, de Dan Bernstein. Escogemos uno ya existente para
 evitar hacer uno muy malo (con muchas colisiones) */
-
+/*
 unsigned long hash(unsigned char *str){
     unsigned long hash = 5381;
     int c;
@@ -61,14 +84,32 @@ unsigned long hash(unsigned char *str){
         hash = ((hash << 5) + hash) + c;
 
     return hash;
+}*/
+unsigned long hash(unsigned char *str){
+  unsigned long hash = 1;
+  return hash;
 }
-/*int main(){
+/*
+int main(){
     tablahash *tabla = create_table(100);
     insert_table(tabla, "HOLA", (void *)2);
+    insert_table(tabla, "ADIOS", (void *)3);
+    insert_table(tabla, "JAJA", (void *)4);
+    insert_table(tabla, "PACO", (void *)5);
+
     if((int) search_table(tabla, "HOLA") == 2)
-    printf("HOLA BIEN");
+    printf("HOLA");
+    if((int) search_table(tabla, "ADIOS") == 3)
+    printf("ADIOS");
+    if((int) search_table(tabla, "JAJA") == 4)
+    printf("JAJA");
+    if((int) search_table(tabla, "PACO") == 5)
+    printf("PACO");
+
+
+
     if(search_table(tabla, "AAAAAA") == NULL)
     printf("ERROR BIEN");
+
     destroy_table(tabla);
-}
-*/
+}*/
