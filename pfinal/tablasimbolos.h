@@ -3,8 +3,20 @@
 
 #include "tablahash.h"
 
-#define TAM_GLOBAL 5000
-#define TAM_LOCAL 500
+#define TAM_GLOBAL 50000
+#define TAM_LOCAL 50000
+
+#define MAX_VECTOR 64
+
+#define VARIABLE 1
+#define PARAMETRO 2
+#define FUNCION 3
+
+#define BOOLEAN 1
+#define INT 2
+
+#define ESCALAR 1
+#define VECTOR 2
 
 typedef struct informacion{
     char identificador[MAX_IDENTIFIER+1];
@@ -18,7 +30,6 @@ typedef struct informacion{
     int pos_param;
     int num_variables;
     int pos_variable;
-    int etiqueta;
 } informacion;
 
 typedef struct tabla_simbolos{
@@ -41,19 +52,12 @@ informacion *search_tabla_global(tabla_simbolos *tabla, char *key);
 int add_tabla_local(tabla_simbolos *tabla, char *key, informacion *info);
 informacion *search_tabla_local(tabla_simbolos *tabla, char *key);
 
-
-/* Crea una variable de informacion con los valores pasados */
 informacion *crear_informacion(const char *identificador, int categoria,
     int tipo, int clase, int tamano, int valor_entero, int num_param, int pos_param,
     int num_variables, int pos_variable);
 
-
-/* Inserta una variable en la tabla */
 int insertar_variable(tabla_simbolos *tabla, char *key, informacion *info);
-//int insertar_funcion(tabla_simbolos *tabla, char *key, informacion *info);
-
-
-/* Busca un identificador en la tabla */
+int insertar_funcion(tabla_simbolos *tabla, char *key, informacion *info);
 informacion *buscar_identificador(tabla_simbolos *tabla, char *key);
 
 #endif

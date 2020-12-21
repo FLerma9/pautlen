@@ -34,28 +34,45 @@ int iniciar_ambito_global(tabla_simbolos *tabla){
 void cerrar_ambito_global(tabla_simbolos *tabla){
     if(tabla->global != NULL){
         for(int i=0; i<tabla->global->tam; i++){
-            if(tabla->global->array[i].value != NULL)
-                free(tabla->global->array[i].value);
+          elemento *actual = tabla->global->array[i];
+          while (NULL != actual){
+              free(actual->value);
+              elemento *aux;
+              aux = actual->siguiente;
+              actual = aux;
+          }
         }
+        destroy_table(tabla->global);
+        tabla->local=NULL;
     }
+
 }
 
 int iniciar_ambito_local(tabla_simbolos *tabla, char *key, informacion *info){
     if (add_tabla_global(tabla, key, info) == ERR) return ERR;
     tabla->local = create_table(TAM_LOCAL);
     if(tabla->local == NULL) return ERR;
-    if(add_tabla_local(tabla, key, info) == ERR) return ERR;
+    informacion *copy = NULL;
+    copy = malloc(sizeof(informacion));
+    if(NULL == copy) return ERR;
+    memcpy(copy, info, sizeof(informacion));
+    if(add_tabla_local(tabla, key, copy) == ERR) return ERR;
     return OK;
 }
 
 void cerrar_ambito_local(tabla_simbolos *tabla){
     if(tabla->local != NULL){
         for(int i=0; i<tabla->local->tam; i++){
-            if(tabla->local->array[i].value != NULL)
-                free(tabla->local->array[i].value);
+          elemento *actual = tabla->local->array[i];
+          while (NULL != actual){
+              free(actual->value);
+              elemento *aux;
+              aux = actual->siguiente;
+              actual = aux;
+          }
         }
-        free(tabla->local);
-        tabla->local = NULL;
+        destroy_table(tabla->local);
+        tabla->local=NULL;
     }
 }
 
@@ -100,7 +117,6 @@ informacion *crear_informacion(const char *identificador, int categoria,
         info->pos_variable = pos_variable;
         return info;
 }
-
 int insertar_variable(tabla_simbolos *tabla, char *key, informacion *info){
     if(tabla->local == NULL) return add_tabla_global(tabla,key,info);
     return add_tabla_local(tabla,key,info);
