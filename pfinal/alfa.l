@@ -8,9 +8,7 @@
     #define YY_USER_ACTION {\
         if(yy_act < YY_NUM_RULES - 3 && yyleng < 100){\
             column = next_column;\
-            next_column += yyleng;\
-            if(yy_act < YY_NUM_RULES - 5) fprintf(stdout, ";D:\t%s\n", yytext);\
-        }\
+            next_column += yyleng;}\
     }
 %}
 %option noyywrap noinput nounput yylineno nodefault

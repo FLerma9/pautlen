@@ -130,6 +130,7 @@ Se deben insertar en la pila los argumentos necesarios, realizar la llamada
 (call) a la función de librería correspondiente y limpiar la pila.
 */
 void leer(FILE* fpasm, char* nombre, int tipo);
+void leer_en_dir_pila(FILE* fpasm, int tipo);
 void escribir(FILE* fpasm, int es_variable, int tipo);
 
 /*

@@ -21,7 +21,10 @@ TESTS_LOGIC:=$(shell ls tests/logicas*.alf | xargs | sed 's/.alf//g' | sed 's/$(
 TESTS_VECTOR:=$(shell ls tests/vectores*.alf | xargs | sed 's/.alf//g' | sed 's/$(DIRTESTS)\///g')
 TESTS_WHILE:=$(shell ls tests/while*.alf | xargs | sed 's/.alf//g' | sed 's/$(DIRTESTS)\///g')
 TESTS_ERROR:=$(shell ls tests/error_*.alf | xargs | sed 's/.alf//g' | sed 's/$(DIRTESTS)\///g')
-TESTS_INPUT=$(TESTS_ARIT) $(TESTS_FUNCIONES_INPUT) $(TESTS_IF_INPUT) $(TESTS_LOGIC) $(TESTS_WHILE)
+
+TESTS_CUSTOM_INPUT:=$(shell ls tests/custom*.alf | xargs | sed 's/.alf//g' | sed 's/$(DIRTESTS)\///g')
+
+TESTS_INPUT=$(TESTS_ARIT) $(TESTS_FUNCIONES_INPUT) $(TESTS_IF_INPUT) $(TESTS_LOGIC) $(TESTS_WHILE) $(TESTS_CUSTOM_INPUT)
 TESTS_NOINPUT=$(TESTS_COMP) $(TESTS_FUNCIONES_NO_INPUT) $(TESTS_IF_NO_INPUT) $(TESTS_VECTOR)
 TESTS=$(TESTS_INPUT) $(TESTS_NOINPUT) $(TESTS_ERROR)
 TESTS_WITH_DIR:= $(addprefix $(DIRTESTS)/,$(TESTS))

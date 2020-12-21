@@ -1,0 +1,22 @@
+main{
+    int a, b, ret;
+    array int[7] sumas;
+
+    function int subsumas(int a; int b){
+        int i;
+
+        scanf i;
+
+        while((i<b)){
+            printf a+i;
+            i = i+1;
+        }
+        sumas[4] = a*i;
+        return a*i;
+    }
+		scanf a;
+    scanf b;
+    ret = subsumas(a,b);
+    printf ret;
+		printf sumas[4];
+}

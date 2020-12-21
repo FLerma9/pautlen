@@ -269,7 +269,7 @@ lectura         :   TOK_SCANF TOK_IDENTIFICADOR {
                                                     else if(i->categoria==VARIABLE){
                                                       escribirVariableLocal(yyout, i->pos_variable);
                                                     }
-                                                    leer(yyout, i->identificador, i->tipo);
+                                                    leer_en_dir_pila(yyout, i->tipo);
                                                   }
                                                 }
                                                 ECHOYYPARSE(54, "<lectura> ::= scanf <TOK_IDENTIFICADOR>");}

@@ -246,6 +246,11 @@ void mayor(FILE* fpasm, int es_variable1, int es_variable2, int etiqueta){
 void leer(FILE* fpasm, char* nombre, int tipo){
     if(fpasm == NULL) return;
     escribir_operando(fpasm, nombre, 1); //Pusheamos como direccion con el nombre
+    leer_en_dir_pila(fpasm, tipo);
+}
+
+void leer_en_dir_pila(FILE* fpasm, int tipo){
+    if(fpasm == NULL) return;
     //Comprobamos antes si es un boolean o int para llamar a la funcion adecuada
     if(tipo == BOOLEANO) fprintf(fpasm, "\tcall scan_boolean\n");
     if(tipo == ENTERO) fprintf(fpasm, "\tcall scan_int\n");
