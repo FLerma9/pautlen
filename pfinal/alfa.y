@@ -243,11 +243,35 @@ bucle_cond      :   TOK_WHILE {
                               }
 
 lectura         :   TOK_SCANF TOK_IDENTIFICADOR {
-                                                informacion *i = buscar_identificador(tsymb, $2.identificador);
-                                                if (i == NULL) return error_sem(undec_acc, $2.identificador);
-                                                else if (i->categoria == FUNCION) return error_sem(func_as_var, $2.identificador);
-                                                else if (i->clase == VECTOR) return error_sem(noindex_v, $2.identificador);
-                                                leer(yyout, i->identificador, i->tipo);
+                                                informacion *i;
+                                                if(local==FALSE){
+                                                  i = buscar_identificador(tsymb, $2.identificador);
+                                                  if (i == NULL) return error_sem(undec_acc, $2.identificador);
+                                                  else if (i->categoria == FUNCION) return error_sem(func_as_var, $2.identificador);
+                                                  else if (i->clase == VECTOR) return error_sem(noindex_v, $2.identificador);
+                                                  leer(yyout, i->identificador, i->tipo);
+                                                }
+                                                else{
+                                                  i = search_tabla_local(tsymb, $2.identificador);
+                                                  if(i==NULL){
+                                                    i = search_tabla_global(tsymb, $2.identificador);
+                                                    if (i == NULL) return error_sem(undec_acc, $2.identificador);
+                                                    else if (i->categoria == FUNCION) return error_sem(func_as_var, $2.identificador);
+                                                    else if (i->clase == VECTOR) return error_sem(noindex_v, $2.identificador);
+                                                    leer(yyout, i->identificador, i->tipo);
+                                                  }
+                                                  else{
+                                                    if (i->categoria == FUNCION) return error_sem(func_as_var, $2.identificador);
+                                                    else if (i->clase == VECTOR) return error_sem(noindex_v, $2.identificador);
+                                                    if(i->categoria==PARAMETRO){
+                                                      escribirParametro(yyout, i->pos_param, num_parametros_actual);
+                                                    }
+                                                    else if(i->categoria==VARIABLE){
+                                                      escribirVariableLocal(yyout, i->pos_variable);
+                                                    }
+                                                    leer(yyout, i->identificador, i->tipo);
+                                                  }
+                                                }
                                                 ECHOYYPARSE(54, "<lectura> ::= scanf <TOK_IDENTIFICADOR>");}
 escritura       :   TOK_PRINTF exp  {escribir(yyout, $2.es_direccion, $2.tipo);
                                     ECHOYYPARSE(56, "<escritura> ::= printf <exp>");}
