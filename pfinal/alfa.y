@@ -112,10 +112,6 @@ fn_declaration  :   fn_name '(' parametros_funcion ')' '{' declaraciones_funcion
       inf->num_variables = num_variables_locales_actual;
       strcpy($$.identificador, $1.identificador);
       declararFuncion(yyout, $1.identificador, num_variables_locales_actual);
-      for(int i=0; i<num_parametros_actual; i++)
-        escribirParametro(yyout, i, num_parametros_actual);
-      for(int i=0; i<num_variables_locales_actual; i++)
-        escribirVariableLocal(yyout, i);
       insideFunc = TRUE;
     }
 
@@ -302,8 +298,10 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                                             }
                                             ECHOYYPARSE(79, "<exp> ::= ! <exp>");}
                 |   TOK_IDENTIFICADOR   {
+                                        informacion *i;
+                                        $$.es_direccion = 1;
                                         if(local==FALSE){
-                                          informacion *i = buscar_identificador(tsymb, $1.identificador);
+                                          i = buscar_identificador(tsymb, $1.identificador);
                                           if (i == NULL) return error_sem(undec_acc, $1.identificador);
                                           else if (i->categoria == FUNCION) return error_sem(func_as_var, $1.identificador);
                                           else if (i->clase == VECTOR) return error_sem(noindex_v, $1.identificador);
@@ -311,9 +309,9 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                                           escribir_aux($$);
                                         }
                                         else{
-                                          informacion *i = search_tabla_local(tsymb, $1.identificador);
+                                          i = search_tabla_local(tsymb, $1.identificador);
                                           if(i==NULL){
-                                            informacion *i = search_tabla_global(tsymb, $1.identificador);
+                                            i = search_tabla_global(tsymb, $1.identificador);
                                             if (i == NULL) return error_sem(undec_acc, $1.identificador);
                                             else if (i->categoria == FUNCION) return error_sem(func_as_var, $1.identificador);
                                             else if (i->clase == VECTOR) return error_sem(noindex_v, $1.identificador);
@@ -321,11 +319,11 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                                             escribir_aux($$);
                                           }
                                           else{
-                                            else if (i->categoria == FUNCION) return error_sem(func_as_var, $1.identificador);
+                                            if (i->categoria == FUNCION) return error_sem(func_as_var, $1.identificador);
                                             else if (i->clase == VECTOR) return error_sem(noindex_v, $1.identificador);
                                             strcpy($$.identificador, $1.identificador);
                                             if(i->categoria==PARAMETRO){
-                                              escribirParametro(yyout, i->pos_param, num_parametros_llamada_actual);
+                                              escribirParametro(yyout, i->pos_param, num_parametros_actual);
                                             }
                                             else if(i->categoria==VARIABLE){
                                               escribirVariableLocal(yyout, i->pos_variable);
@@ -333,7 +331,6 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                                           }
                                         }
                                         $$.tipo = i->tipo;
-                                        $$.es_direccion = 1;
                                         ECHOYYPARSE(80, "<exp> ::= <TOK_IDENTIFICADOR>");
                                         }
                 |   constante           {$$.tipo = $1.tipo; $$.es_direccion = 0; $$.valor_entero = $1.valor_entero;
