@@ -53,7 +53,7 @@
 %%
 programa        :  {tsymb = create_tabla_simbolos();}
     TOK_MAIN '{' {escribir_cabecera_bss(yyout); categoria_actual = VARIABLE; /*CAMBIAR CUANDO FUNCIONES*/}
-    declaraciones  {escribir_subseccion_data(yyout); escribir_segmento_codigo(yyout);}
+    declaraciones  {escribir_subseccion_data(yyout); escribir_segmento_codigo(yyout);clase_actual=-1;tipo_actual=-1;}
     funciones {escribir_inicio_main(yyout);}
     sentencias '}' {escribir_fin(yyout);destroy_tabla_simbolos(tsymb);}
     {ECHOYYPARSE(1, "<programa> ::= main { <declaraciones> <funciones> <sentencias> }");}
@@ -77,8 +77,6 @@ tipo            :   TOK_INT         {tipo_actual=INT ;ECHOYYPARSE(10, "<tipo> ::
 
 clase_vector    :   TOK_ARRAY tipo '[' TOK_CONSTANTE_ENTERA ']'
                     {
-                        if($4.valor_entero < 0 || $4.valor_entero>MAX_VECTOR)
-                            return error_sem(size_v, NULL);
                         tamano_actual = $4.valor_entero;
                     }
 
@@ -117,7 +115,6 @@ fn_declaration  :   fn_name '(' parametros_funcion ')' '{' declaraciones_funcion
 
 fn_name         :   TOK_FUNCTION tipo TOK_IDENTIFICADOR
     {
-      if(tipo_actual==VECTOR) return error_sem(return_nosc, NULL);
       if(local==TRUE) return error_sem(funcInsideFunc, $3.identificador);
       informacion *inf = crear_informacion($3.identificador, FUNCION,
           tipo_actual, clase_actual, tamano_actual, 0, 0, 0, 0, 0);
@@ -166,10 +163,39 @@ sentencia_simple    :   asignacion          {ECHOYYPARSE(34, "<sentencia_simple>
 bloque          :   condicional             {ECHOYYPARSE(40, "<bloque> ::= <condicional>");}
                 |   bucle                   {ECHOYYPARSE(41, "<bloque> ::= <bucle>");}
 
-asignacion      :   TOK_IDENTIFICADOR '=' exp   {informacion *i = buscar_identificador(tsymb, $1.identificador);
-                                                if (i == NULL) return error_sem(undec_acc, $1.identificador);
-                                                else if (i->tipo != $3.tipo) return error_sem(incomp_assgn, NULL);
-                                                asignar(yyout, $1.identificador, $3.es_direccion);
+asignacion      :   TOK_IDENTIFICADOR '=' exp {
+                                                informacion *i;
+                                                if(local==FALSE){
+                                                  i = buscar_identificador(tsymb, $1.identificador);
+                                                  if (i == NULL) return error_sem(undec_acc, $1.identificador);
+                                                  else if (i->categoria == FUNCION) return error_sem(func_as_var, $1.identificador);
+                                                  else if (i->clase == VECTOR) return error_sem(noindex_v, $1.identificador);
+                                                  else if (i->tipo != $3.tipo) return error_sem(incomp_assgn, NULL);
+                                                  asignar(yyout, $1.identificador, $3.es_direccion);
+                                                }
+                                                else{
+                                                  i = search_tabla_local(tsymb, $1.identificador);
+                                                  if(i==NULL){
+                                                    i = search_tabla_global(tsymb, $1.identificador);
+                                                    if (i == NULL) return error_sem(undec_acc, $1.identificador);
+                                                    else if (i->categoria == FUNCION) return error_sem(func_as_var, $1.identificador);
+                                                    else if (i->clase == VECTOR) return error_sem(noindex_v, $1.identificador);
+                                                    else if (i->tipo != $3.tipo) return error_sem(incomp_assgn, NULL);
+                                                    asignar(yyout, $1.identificador, $3.es_direccion);
+                                                  }
+                                                  else{
+                                                    if (i->categoria == FUNCION) return error_sem(func_as_var, $1.identificador);
+                                                    else if (i->clase == VECTOR) return error_sem(noindex_v, $1.identificador);
+                                                    else if (i->tipo != $3.tipo) return error_sem(incomp_assgn, NULL);
+                                                    if(i->categoria==PARAMETRO){
+                                                      escribirParametro(yyout, i->pos_param, num_parametros_actual);
+                                                    }
+                                                    else if(i->categoria==VARIABLE){
+                                                      escribirVariableLocal(yyout, i->pos_variable);
+                                                    }
+                                                    asignarDestinoEnPila(yyout, $3.es_direccion);
+                                                  }
+                                                }
                                                 ECHOYYPARSE(43, "<asignacion> ::= <TOK_IDENTIFICADOR> = <exp>");}
                 |   elemento_vector '=' exp {if ($1.tipo != $3.tipo) return error_sem(incomp_assgn, NULL);
                                             asignarElementoVector(yyout, $3.es_direccion);
@@ -231,6 +257,7 @@ retorno_funcion :   TOK_RETURN exp
                       informacion *i =buscar_identificador(tsymb, nombreFuncionActual);
                       if (i == NULL) return error_sem(undec_acc, nombreFuncionActual);
                       if(i->tipo!=$2.tipo) return error_sem(ret_wrongtype, NULL);
+                      if($2.clase == VECTOR) return error_sem(return_nosc, NULL);
                       retornarFuncion(yyout, $2.es_direccion);
                       salir = TRUE;
                       ECHOYYPARSE(61, "<retorno_funcion> ::= return <exp>");}
@@ -449,6 +476,8 @@ idpf            :   TOK_IDENTIFICADOR
 identificador   :   TOK_IDENTIFICADOR
                     {
                         if(local==FALSE){
+                          if((tamano_actual < 0 || tamano_actual>MAX_VECTOR) && clase_actual==VECTOR)
+                              return error_sem(size_v, $1.identificador);
                           informacion *inf = crear_informacion($1.identificador, categoria_actual,
                               tipo_actual, clase_actual, tamano_actual, 1, 0, 0, 0, 0);
                           if(inf == NULL) return error_unknown();
@@ -460,7 +489,7 @@ identificador   :   TOK_IDENTIFICADOR
                           informacion *inf = crear_informacion($1.identificador, VARIABLE,
                               tipo_actual, clase_actual, tamano_actual, 0, 0, 0, 0, pos_variable_local_actual);
                           if(inf == NULL) return error_unknown();
-                          if(tipo_actual==VECTOR) return error_sem(local_nosc, $1.identificador);
+                          if(clase_actual==VECTOR) return error_sem(local_nosc, $1.identificador);
                           if(add_tabla_local(tsymb, $1.identificador, inf) == ERR)
                               return error_sem(dec_dup, $1.identificador);
                           pos_variable_local_actual++;
