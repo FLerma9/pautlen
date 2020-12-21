@@ -302,19 +302,38 @@ exp             :   exp '+' exp {if(!mismo_tipo(INT, $1.tipo, $3.tipo)) return e
                                             }
                                             ECHOYYPARSE(79, "<exp> ::= ! <exp>");}
                 |   TOK_IDENTIFICADOR   {
-                                        informacion *i = buscar_identificador(tsymb, $1.identificador);
-                                        if (i == NULL) return error_sem(undec_acc, $1.identificador);
-                                        else if (i->categoria == FUNCION) return error_sem(func_as_var, $1.identificador);
-                                        else if (i->clase == VECTOR) return error_sem(noindex_v, $1.identificador);
-                                        strcpy($$.identificador, $1.identificador);
-                                        $$.tipo = i->tipo;
-                                        if(local==TRUE){
-
-                                        }
-                                        else{
-                                          $$.es_direccion = 1;
+                                        if(local==FALSE){
+                                          informacion *i = buscar_identificador(tsymb, $1.identificador);
+                                          if (i == NULL) return error_sem(undec_acc, $1.identificador);
+                                          else if (i->categoria == FUNCION) return error_sem(func_as_var, $1.identificador);
+                                          else if (i->clase == VECTOR) return error_sem(noindex_v, $1.identificador);
+                                          strcpy($$.identificador, $1.identificador);
                                           escribir_aux($$);
                                         }
+                                        else{
+                                          informacion *i = search_tabla_local(tsymb, $1.identificador);
+                                          if(i==NULL){
+                                            informacion *i = search_tabla_global(tsymb, $1.identificador);
+                                            if (i == NULL) return error_sem(undec_acc, $1.identificador);
+                                            else if (i->categoria == FUNCION) return error_sem(func_as_var, $1.identificador);
+                                            else if (i->clase == VECTOR) return error_sem(noindex_v, $1.identificador);
+                                            strcpy($$.identificador, $1.identificador);
+                                            escribir_aux($$);
+                                          }
+                                          else{
+                                            else if (i->categoria == FUNCION) return error_sem(func_as_var, $1.identificador);
+                                            else if (i->clase == VECTOR) return error_sem(noindex_v, $1.identificador);
+                                            strcpy($$.identificador, $1.identificador);
+                                            if(i->categoria==PARAMETRO){
+                                              escribirParametro(yyout, i->pos_param, num_parametros_llamada_actual);
+                                            }
+                                            else if(i->categoria==VARIABLE){
+                                              escribirVariableLocal(yyout, i->pos_variable);
+                                            }
+                                          }
+                                        }
+                                        $$.tipo = i->tipo;
+                                        $$.es_direccion = 1;
                                         ECHOYYPARSE(80, "<exp> ::= <TOK_IDENTIFICADOR>");
                                         }
                 |   constante           {$$.tipo = $1.tipo; $$.es_direccion = 0; $$.valor_entero = $1.valor_entero;
@@ -347,15 +366,13 @@ idf_llamada_funcion     :   TOK_IDENTIFICADOR {
 	    strcpy($$.identificador, $1.identificador);
 }
 
-lista_expresiones       :   exp resto_lista_expresiones
-    { operandoEnPilaAArgumento(yyout,$1.es_direccion);
-      num_parametros_llamada_actual++;
+lista_expresiones       :   exp {operandoEnPilaAArgumento(yyout,$1.es_direccion);} resto_lista_expresiones
+    { num_parametros_llamada_actual++;
       ECHOYYPARSE(89, "<lista_expresiones> ::= <exp> <resto_lista_expresiones>");}
                         |
     {ECHOYYPARSE(90, "<lista_expresiones> ::= ");}
-resto_lista_expresiones :   ',' exp resto_lista_expresiones
-    { operandoEnPilaAArgumento(yyout,$2.es_direccion);
-      num_parametros_llamada_actual++;
+resto_lista_expresiones :   ',' exp {operandoEnPilaAArgumento(yyout,$2.es_direccion);} resto_lista_expresiones
+    { num_parametros_llamada_actual++;
       ECHOYYPARSE(91, "<lista_expresiones> ::= <exp> <resto_lista_expresiones>");}
                         |
     {ECHOYYPARSE(92, "<resto_lista_expresiones> ::= ");}
