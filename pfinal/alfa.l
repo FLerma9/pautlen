@@ -48,8 +48,8 @@ return    {return TOK_RETURN;}
 "!"    {return TOK_NOT;}
 "<"    {return TOK_MENOR;}
 ">"    {return TOK_MAYOR;}
-true    {yylval.atrib.valor_entero = 1; return TOK_TRUE;}
-false   {yylval.atrib.valor_entero = 0; return TOK_FALSE;}
+true    {yylval.atrib.valor_entero = TRUE; return TOK_TRUE;}
+false   {yylval.atrib.valor_entero = FALSE; return TOK_FALSE;}
 [a-zA-Z][a-zA-Z0-9]*    { if(yyleng>MAX_IDENTIFIER){
                             emitir_error("identificador demasiado largo");
                             return ERROR;

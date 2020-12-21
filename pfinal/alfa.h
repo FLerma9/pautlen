@@ -6,7 +6,7 @@
 
 #define ERROR 20
 #define MAX_VECTOR 64
-
+#define MAX_IDENTIFIER 100
 #define VARIABLE 1
 #define PARAMETRO 2
 #define FUNCION 3

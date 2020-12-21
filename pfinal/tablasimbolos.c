@@ -43,7 +43,7 @@ void cerrar_ambito_global(tabla_simbolos *tabla){
           }
         }
         destroy_table(tabla->global);
-        tabla->local=NULL;
+        tabla->global=NULL;
     }
 
 }

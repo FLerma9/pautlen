@@ -75,7 +75,6 @@ int insert_table(tablahash *tabla, char *key, void *value){
 
 /* Utilizamos el hash djb2, de Dan Bernstein. Escogemos uno ya existente para
 evitar hacer uno muy malo (con muchas colisiones) */
-/*
 unsigned long hash(unsigned char *str){
     unsigned long hash = 5381;
     int c;
@@ -84,32 +83,4 @@ unsigned long hash(unsigned char *str){
         hash = ((hash << 5) + hash) + c;
 
     return hash;
-}*/
-unsigned long hash(unsigned char *str){
-  unsigned long hash = 1;
-  return hash;
 }
-/*
-int main(){
-    tablahash *tabla = create_table(100);
-    insert_table(tabla, "HOLA", (void *)2);
-    insert_table(tabla, "ADIOS", (void *)3);
-    insert_table(tabla, "JAJA", (void *)4);
-    insert_table(tabla, "PACO", (void *)5);
-
-    if((int) search_table(tabla, "HOLA") == 2)
-    printf("HOLA");
-    if((int) search_table(tabla, "ADIOS") == 3)
-    printf("ADIOS");
-    if((int) search_table(tabla, "JAJA") == 4)
-    printf("JAJA");
-    if((int) search_table(tabla, "PACO") == 5)
-    printf("PACO");
-
-
-
-    if(search_table(tabla, "AAAAAA") == NULL)
-    printf("ERROR BIEN");
-
-    destroy_table(tabla);
-}*/

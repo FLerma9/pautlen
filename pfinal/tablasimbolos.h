@@ -6,23 +6,11 @@
 #define TAM_GLOBAL 50000
 #define TAM_LOCAL 50000
 
-#define MAX_VECTOR 64
-
-#define VARIABLE 1
-#define PARAMETRO 2
-#define FUNCION 3
-
-#define BOOLEAN 1
-#define INT 2
-
-#define ESCALAR 1
-#define VECTOR 2
-
 typedef struct informacion{
     char identificador[MAX_IDENTIFIER+1];
-    int categoria;
-    int tipo;
-    int clase;
+    int categoria; // VARIABLE PARAMETRO FUNCION
+    int tipo; // INT BOOLEAN
+    int clase; // ESCALAR VECTOR
     int tamano;
     int valor_entero;
     int es_direccion;
@@ -30,6 +18,7 @@ typedef struct informacion{
     int pos_param;
     int num_variables;
     int pos_variable;
+    int etiqueta;
 } informacion;
 
 typedef struct tabla_simbolos{
