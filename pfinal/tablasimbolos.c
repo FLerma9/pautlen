@@ -34,28 +34,46 @@ int iniciar_ambito_global(tabla_simbolos *tabla){
 void cerrar_ambito_global(tabla_simbolos *tabla){
     if(tabla->global != NULL){
         for(int i=0; i<tabla->global->tam; i++){
-            if(tabla->global->array[i].value != NULL)
-                free(tabla->global->array[i].value);
+            elemento *actual = tabla->global->array[i];
+            while (NULL != actual){
+                free(actual->value);
+                elemento *aux = actual;
+                actual = actual->siguiente;
+                free(aux);
+            }
         }
+        destroy_table(tabla->global);
+        tabla->local=NULL;
     }
+
 }
 
 int iniciar_ambito_local(tabla_simbolos *tabla, char *key, informacion *info){
     if (add_tabla_global(tabla, key, info) == ERR) return ERR;
     tabla->local = create_table(TAM_LOCAL);
     if(tabla->local == NULL) return ERR;
-    if(add_tabla_local(tabla, key, info) == ERR) return ERR;
+    informacion *copy = NULL;
+    copy = malloc(sizeof(informacion));
+    if(NULL == copy) return ERR;
+    memcpy(copy, info, sizeof(informacion));
+    if(add_tabla_local(tabla, key, copy) == ERR) return ERR;
     return OK;
 }
 
 void cerrar_ambito_local(tabla_simbolos *tabla){
     if(tabla->local != NULL){
         for(int i=0; i<tabla->local->tam; i++){
-            if(tabla->local->array[i].value != NULL)
-                free(tabla->local->array[i].value);
+          elemento *actual = tabla->local->array[i];
+          while (NULL != actual){
+              free(actual->value);
+              elemento *aux;
+              aux = actual->siguiente;
+              free(actual);
+              actual = aux;
+          }
         }
-        free(tabla->local);
-        tabla->local = NULL;
+        destroy_table(tabla->local);
+        tabla->local=NULL;
     }
 }
 
@@ -81,7 +99,7 @@ informacion *search_tabla_local(tabla_simbolos *tabla, char *key){
 }
 
 informacion *crear_informacion(const char *identificador, int categoria,
-    int tipo, int clase, int tamano, int valor_entero, int num_param, int pos_param,
+    int tipo, int escalar_o_vector, int size, int num_param, int pos_param,
     int num_variables, int pos_variable){
         if(strlen(identificador) > MAX_IDENTIFIER) return NULL;
         informacion *info = NULL;
@@ -91,9 +109,8 @@ informacion *crear_informacion(const char *identificador, int categoria,
         strcpy(info->identificador, identificador);
         info->categoria = categoria;
         info->tipo = tipo;
-        info->clase = clase;
-        info->tamano = tamano;
-        info->valor_entero = valor_entero;
+        info->escalar_o_vector = escalar_o_vector;
+        info->size = size;
         info->num_param = num_param;
         info->pos_param = pos_param;
         info->num_variables = num_variables;
