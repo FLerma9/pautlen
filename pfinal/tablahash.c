@@ -5,63 +5,48 @@
 
 tablahash * create_table(int tam){
     tablahash *tabla = NULL;
-    tabla = malloc(sizeof(tablahash));
+    tabla = malloc(sizeof(tabla));
     if(tabla == NULL){
         return NULL;
     }
     tabla->tam = tam;
     tabla->array = NULL;
-    tabla->array = calloc(tam, sizeof(elemento *));
+    tabla->array = calloc(tam, sizeof(elemento));
     if(tabla->array == NULL){
         free(tabla);
         return NULL;
+    }
+    for (int i=0; i<tam; i++){
+        tabla->array[i].value = NULL;
     }
     return tabla;
 }
 
 void destroy_table(tablahash *tabla){
-    // MAYBE ADD FREE
     free(tabla->array);
     free(tabla);
 }
 
 void * search_table(tablahash *tabla, char *key){
     unsigned long itemhash = hash((unsigned char *)key);
-    unsigned long index = (itemhash)%tabla->tam;
-    if(tabla->array[index] == NULL) return NULL;
-    else{
-      elemento *actual = tabla->array[index];
-      while(actual != NULL){
-        if(strcmp(actual->key, key) == 0) return actual->value;
-        actual = actual->siguiente;
-      }
-      return NULL;
+    for(int i=0; i < tabla->tam; i++){
+        unsigned long index = (itemhash+i)%tabla->tam;
+        if(tabla->array[index].value == NULL) return NULL;
+        if(strcmp(tabla->array[index].key, key) == 0) return tabla->array[index].value;
     }
+    return NULL;
 }
 
 int insert_table(tablahash *tabla, char *key, void *value){
     unsigned long itemhash = hash((unsigned char *)key);
-    unsigned long index = (itemhash)%tabla->tam;
-    if(tabla->array[index] == NULL){
-        elemento *elem = NULL;
-        if (NULL == (elem = malloc(sizeof(elemento)))) return ERR;
-        tabla->array[index] = elem;
-        tabla->array[index]->value = value;
-        tabla->array[index]->siguiente = NULL;
-        strcpy(tabla->array[index]->key, key);
-        return OK;
-    } else{
-      elemento *elem = NULL;
-      if (NULL == (elem = malloc(sizeof(elemento)))) return ERR;
-      elemento *aux;
-      aux = tabla->array[index];
-      tabla->array[index] = elem;
-      tabla->array[index]->value = value;
-      strcpy(tabla->array[index]->key, key);
-      tabla->array[index]->siguiente = aux;
-      return OK;
+    for(int i=0; i < tabla->tam; i++){
+        unsigned long index = (itemhash+i)%tabla->tam;
+        if(tabla->array[index].value == NULL){
+            tabla->array[index].value = value;
+            strcpy(tabla->array[index].key, key);
+            return OK;
+        }
     }
-
     return ERR;
 }
 
@@ -82,10 +67,8 @@ unsigned long hash(unsigned char *str){
     insert_table(tabla, "HOLA", (void *)2);
     if((int) search_table(tabla, "HOLA") == 2)
     printf("HOLA BIEN");
-
-
     if(search_table(tabla, "AAAAAA") == NULL)
     printf("ERROR BIEN");
-
     destroy_table(tabla);
-}*/
+}
+*/

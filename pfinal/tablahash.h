@@ -6,15 +6,13 @@
 #define OK 0
 #define ERR 1
 
-typedef struct elemento elemento;
-struct elemento{
+typedef struct elemento{
     void *value;
     char key[MAX_IDENTIFIER+1];
-    elemento *siguiente;
-};
+}elemento;
 
 typedef struct tablahash{
-    elemento **array;
+    elemento *array;
     int tam;
 }tablahash;
 
